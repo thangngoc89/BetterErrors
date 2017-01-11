@@ -3,10 +3,8 @@
   "version": "0.1.0",
   "description": "Better errors for ocaml",
   "dependencies": {
-    "@opam-alpha/re": "*",
-    "reason": "git://github.com/facebook/reason.git",
-    "dependency-env": "*",
-    "nopam": "*"
+    "@opam/re": "*",
+    "reason": "andreypopp/reason#esy"
   },
   "repository": {
     "type": "git",
@@ -15,16 +13,12 @@
   "author": "chenglou",
   "devDependencies": {},
   "scripts": {
-    "start": "eval $(dependencyEnv) && nopam && rebuild -pkg re.pcre -pkg unix src/berror.native",
-    "test": "ocaml tests/test.ml",
-    "postinstall": "npm start"
+    "test": "ocaml tests/test.ml"
   },
-  "exportedEnvVars": {
-    "PATH": {
-      "global": true,
-      "globalCollisionBehavior": "joinPath",
-      "resolveAsRelativePath": true,
-      "val": "./_build/src/"
-    }
+  "esy": {
+    "build": [
+      "rebuild -pkg re.pcre -pkg unix src/berror.native",
+      "cp _build/src/berror.native $cur__bin/berror"
+    ]
   }
 }
