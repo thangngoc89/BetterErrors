@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Better errors for ocaml",
   "dependencies": {
-    "@opam/re": "*",
-    "reason": "andreypopp/reason#esy"
+    "@opam-alpha/re": "*",
+    "reason": "facebook/reason#esy"
   },
   "repository": {
     "type": "git",
