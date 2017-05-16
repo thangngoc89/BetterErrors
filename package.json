@@ -11,11 +11,14 @@
     "url": "git+https://github.com/chenglou/BetterErrors.git"
   },
   "author": "chenglou",
-  "devDependencies": {},
+  "devDependencies": {
+    "ocaml": "esy-ocaml/ocaml#esy"
+  },
   "scripts": {
     "test": "ocaml tests/test.ml"
   },
   "esy": {
+    "buildsInSource": true,
     "build": [
       "rebuild -pkg re.pcre -pkg unix src/berror.native",
       "cp _build/src/berror.native $cur__bin/berror"
