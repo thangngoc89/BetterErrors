@@ -1,27 +1,31 @@
 {
   "name": "ocamlBetterErrors",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "description": "Better errors for ocaml",
   "dependencies": {
     "@opam/re": "*",
-    "@opam/reason": "1.13.x"
+    "@opam/reason": "^3.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chenglou/BetterErrors.git"
   },
   "author": "chenglou",
-  "devDependencies": {
-    "ocaml": "esy-ocaml/ocaml#esy"
+  "peerDependencies": {
+    "ocaml": " >= 4.2.0  < 4.6.0"
   },
-  "scripts": {
-    "test": "ocaml tests/test.ml"
+  "devDependencies": {
+    "@opam/merlin": "2.5.4",
+    "ocaml": "~4.2.3000"
   },
   "esy": {
-    "buildsInSource": true,
     "build": [
       "rebuild -pkg re.pcre -pkg unix src/berror.native",
       "cp _build/src/berror.native $cur__bin/berror"
-    ]
+    ],
+    "install": [
+      "esy-installer"
+    ],
+    "buildsInSource": "_build"
   }
 }
