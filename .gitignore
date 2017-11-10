@@ -16,3 +16,5 @@ setup.log
 
 node_modules
 .jenga
+*.opam
+*.install

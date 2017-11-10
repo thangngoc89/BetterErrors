@@ -3,6 +3,7 @@
   "version": "3.0.0",
   "description": "Better errors for ocaml",
   "dependencies": {
+    "@opam/jbuilder": "*",
     "@opam/re": "*",
     "@opam/reason": "^3.0.0"
   },
@@ -20,11 +21,10 @@
   },
   "esy": {
     "build": [
-      "rebuild -pkg re.pcre -pkg unix src/berror.native",
-      "cp _build/src/berror.native $cur__bin/berror"
+      [ "make", "build" ]
     ],
     "install": [
-      "esy-installer"
+      [ "make", "install" ]
     ],
     "buildsInSource": "_build"
   }
