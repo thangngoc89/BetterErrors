@@ -1,6 +1,5 @@
 build:
 	# Creating ocamlBetterErrors.opam so that jbuilder builds.
-	touch ocamlBetterErrors.opam
 	jbuilder build -j 8
 
 install: build
