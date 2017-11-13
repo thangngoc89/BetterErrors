@@ -1,7 +1,7 @@
 {
-  "name": "ocamlBetterErrors",
+  "name": "refmterr",
   "version": "3.0.1",
-  "description": "Better errors for ocaml",
+  "description": "Reason Formatting of Errors",
   "dependencies": {
     "@opam/jbuilder": "*",
     "@opam/re": "*",
