@@ -87,8 +87,8 @@ let type_IncompatibleType = (err, _, range) => {
 let type_MismatchTypeArguments = (err, _, _) => {
   let allR = {|The constructor ([\w\.]*) *expects[\s]*(\d+) *argument\(s\),\s*but is applied here to (\d+) argument\(s\)|};
   let typeConstructor = get_match_n(1, allR, err);
-  let expectedCount = int_of_string @@ get_match_n(2, allR, err);
-  let actualCount = int_of_string @@ get_match_n(3, allR, err);
+  let expectedCount = int_of_string (get_match_n(2, allR, err));
+  let actualCount = int_of_string (get_match_n(3, allR, err));
   Type_MismatchTypeArguments({typeConstructor, expectedCount, actualCount})
 };
 

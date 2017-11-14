@@ -64,9 +64,9 @@ let _printFile =
   /* ellipsis vertical separator to indicate "there are white spaces before" */
   let sep =
     if (minIndent == 0) {
-      " \226\148\130 "
+      " â\148\130 "
     } else {
-      " \226\148\134 "
+      " â\148\134 "
     };
   let startColumn = startColumn - minIndent;
   let endColumn = endColumn - minIndent;
@@ -116,9 +116,9 @@ let printFile = (~isWarning=false, {cachedContent, filePath, range}) => {
   let ((startRow, startColumn), (endRow, endColumn)) = range;
   let filePathDisplay =
     if (startRow == endRow) {
-      cyan @@ sp("%s:%d %d-%d\n", filePath, startRow + 1, startColumn, endColumn)
+      cyan(sp("%s:%d %d-%d\n", filePath, startRow + 1, startColumn, endColumn))
     } else {
-      cyan @@ sp("%s:%d:%d-%d:%d\n", filePath, startRow + 1, startColumn, endRow + 1, endColumn)
+      cyan(sp("%s:%d:%d-%d:%d\n", filePath, startRow + 1, startColumn, endRow + 1, endColumn))
     };
   filePathDisplay
   ++ _printFile(

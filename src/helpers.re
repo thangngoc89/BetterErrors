@@ -209,5 +209,5 @@ let sp = Printf.sprintf;
 
 let highlight = (~color=red, ~first=0, ~last=99999, str) =>
   stringSlice(~last=first, str)
-  ++ (color @@ stringSlice(~first, ~last, str))
+  ++ color(stringSlice(~first, ~last, str))
   ++ stringSlice(~first=last, str);

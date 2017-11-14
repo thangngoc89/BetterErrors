@@ -20,7 +20,7 @@ let normalizeCompilerLineColsToRange = (~fileLines, ~lineRaw, ~col1Raw, ~col2Raw
   let isOCamlBeingBadAndPointingToALineBeyondFileLength = line > fileLength;
   let (col1, col2) =
     if (isOCamlBeingBadAndPointingToALineBeyondFileLength) {
-      let lastDamnReachableSpotInTheFile = String.length @@ List.nth(fileLines, fileLength - 1);
+      let lastDamnReachableSpotInTheFile = String.length(List.nth(fileLines, fileLength - 1));
       (lastDamnReachableSpotInTheFile - 1, lastDamnReachableSpotInTheFile)
     } else {
       switch (col1Raw, col2Raw) {
@@ -112,10 +112,10 @@ let printFullSplitResult =
       print_endline("");
       Re_pcre.(
         switch x {
-        | Delim(a) => print_endline @@ "Delim " ++ a
-        | Group(_, a) => print_endline @@ "Group " ++ a
-        | Text(a) => print_endline @@ "Text " ++ a
-        | NoGroup => print_endline @@ "NoGroup"
+        | Delim(a) => print_endline("Delim " ++ a)
+        | Group(_, a) => print_endline("Group " ++ a)
+        | Text(a) => print_endline("Text " ++ a)
+        | NoGroup => print_endline("NoGroup")
         }
       )
     }
