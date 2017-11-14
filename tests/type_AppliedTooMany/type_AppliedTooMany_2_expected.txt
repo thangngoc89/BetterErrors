@@ -3,6 +3,5 @@
 2 │ 
 3 │ let evenLongerCall = [31mlongFunction[0m "a" "a" "a" "a" "a" "a" "a" "a"
 
-[31mError[0m: This function has type string ->
-         string -> string -> string -> string -> string -> string -> string
+[31mError[0m: This function has type (string, string, string, string, string, string, string) => string
 It accepts only 7 arguments. You gave more. Maybe you forgot a `;` somewhere?

@@ -4,5 +4,5 @@
  9 │ 
 10 │ open [31mHelloWorld.ThisMorningIThink.IWillEatSomeDelicious.Pancaek[0m
 
-[31mError[0m: Module `HelloWorld.ThisMorningIThink.IWillEatSomeDelicious.Pancaek` not found in included libraries.
+[31mError[0m: Module `HelloWorld.ThisMorningIThink.IWillEatSomeDelicious.Pancaek;` not found in included libraries.
 Hint: did you mean `Pancake`?

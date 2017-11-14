@@ -5,4 +5,4 @@
 
 [31mError[0m: The types don't match.
 [31mThis is:[0m [31mstring[0m
-[32mWanted:[0m  [32mstring -> 'a -> 'b[0m
+[32mWanted:[0m  [32m(string, 'a) => 'b[0m

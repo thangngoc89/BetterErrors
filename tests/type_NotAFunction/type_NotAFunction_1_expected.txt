@@ -2,5 +2,5 @@
 [0m1 │ let a =
 2 │   [31m[[[[[[[[[[5]]]]]]]]]][0m ()
 
-[31mError[0m: This is int list list list list list list list list list list. You seem to have called it as a function.
+[31mError[0m: This is list(list(list(list(list(list(list(list(list(list(int)))))))))). You seem to have called it as a function.
 Careful with spaces, semicolons, parentheses, and whatever in-between!

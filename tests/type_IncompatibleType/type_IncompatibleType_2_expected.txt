@@ -3,4 +3,4 @@
 
 [31mError[0m: The types don't match.
 [31mThis is:[0m [31mbool[0m
-[32mWanted:[0m  [32m'a ref[0m
+[32mWanted:[0m  [32mref('a)[0m

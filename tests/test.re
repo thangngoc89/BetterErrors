@@ -81,7 +81,7 @@ let forEachTest = (i, (dirname, fileCount)) =>
     ignore(
       Sys.command(
         Printf.sprintf(
-          "%s 2>&1 | ./_build/install/default/bin/berror.exe > %s",
+          "%s 2>&1 | ./_build/install/default/bin/berror.exe --path-to-refmttype refmttype > %s",
           cmd,
           actualOutputName
         )
@@ -92,7 +92,7 @@ let forEachTest = (i, (dirname, fileCount)) =>
     let actual = readFile(actualOutputName);
     /* swap-comment below two lines if you want to generate new expected
        from the new actual */
-    /* ignore @@ Sys.command @@ Printf.sprintf "cp %s %s" actualOutputName expectedOutputName */
+    /* ignore @@ Sys.command @@ Printf.sprintf("cp %s %s", actualOutputName, expectedOutputName); */
     /* TODO: show the differences */
     if (actual != expected) {
       print_endline("Actual:" ++ actualOutputName);

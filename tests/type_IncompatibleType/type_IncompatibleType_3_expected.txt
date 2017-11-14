@@ -6,5 +6,5 @@
 7 │ }
 
 [31mError[0m: The types don't match.
-[31mThis is:[0m [31m'a array[0m
-[32mWanted:[0m  [32mstring list[0m
+[31mThis is:[0m [31marray('a)[0m
+[32mWanted:[0m  [32mlist(string)[0m
