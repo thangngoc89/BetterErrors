@@ -73,19 +73,12 @@ let normalizeCompilerLineColsToRange = (~fileLines, ~lineRaw, ~col1Raw, ~col2Raw
 let extractFromFileMatch = (fileMatch) =>
   Re_pcre.(
     switch fileMatch {
-    | [
-        Delim(_),
-        [@implicit_arity] Group(_, filePath),
-        [@implicit_arity] Group(_, lineNum),
-        col1,
-        col2,
-        Text(body)
-      ] =>
+    | [Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
       let cachedContent = Helpers.fileLinesOfExn(filePath);
       /* sometimes there's only line, but no characters */
       let (col1Raw, col2Raw) =
         switch (col1, col2) {
-        | ([@implicit_arity] Group(_, c1), [@implicit_arity] Group(_, c2)) =>
+        | (Group(_, c1), Group(_, c2)) =>
           /* bug: https://github.com/mmottl/pcre-ocaml/issues/5 */
           if (String.trim(c1) == "" || String.trim(c2) == "") {
             (None, None)
@@ -120,7 +113,7 @@ let printFullSplitResult =
       Re_pcre.(
         switch x {
         | Delim(a) => print_endline @@ "Delim " ++ a
-        | [@implicit_arity] Group(_, a) => print_endline @@ "Group " ++ a
+        | Group(_, a) => print_endline @@ "Group " ++ a
         | Text(a) => print_endline @@ "Text " ++ a
         | NoGroup => print_endline @@ "NoGroup"
         }
@@ -152,14 +145,7 @@ let parse = (~customErrorParsers, err) => {
   try
     Re_pcre.(
       switch (full_split(~rex=fileR, err)) {
-      | [
-          Delim(_),
-          [@implicit_arity] Group(_, filePath),
-          [@implicit_arity] Group(_, lineNum),
-          col1,
-          col2,
-          Text(body)
-        ] =>
+      | [Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
         /* important, otherwise leaves random blank lines that defies some of
            our regex logic, maybe */
         let body = String.trim(body);
@@ -171,7 +157,7 @@ let parse = (~customErrorParsers, err) => {
           /* sometimes there's only line, but no characters */
           let (col1Raw, col2Raw) =
             switch (col1, col2) {
-            | ([@implicit_arity] Group(_, c1), [@implicit_arity] Group(_, c2)) =>
+            | (Group(_, c1), Group(_, c2)) =>
               /* bug: https://github.com/mmottl/pcre-ocaml/issues/5 */
               if (String.trim(c1) == "" || String.trim(c2) == "") {
                 raise(Invalid_argument("HUHUHUH"))
