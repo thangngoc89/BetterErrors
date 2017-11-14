@@ -138,7 +138,7 @@ let hasHintRStr = {|^Hint: Did you mean |};
 
 let hasHintR = Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], hasHintRStr);
 
-let parse = (~customErrorParsers, err) => {
+let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
   /* we know whatever err is, it starts with "File: ..." because that's how `parse`
      is used */
   let err = String.trim(err);
@@ -219,7 +219,7 @@ let line_stream_of_channel = (channel) =>
 
 /* entry point, for convenience purposes for now. Theoretically the parser and
    the reporters are decoupled */
-let parseFromStdin = (~refmttypePath, ~customErrorParsers) => {
+let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorParsers) => {
   let errBuffer = ref("");
   let prettyPrintParsedResult = TerminalReporter.prettyPrintParsedResult(~refmttypePath);
   try {
@@ -234,7 +234,8 @@ let parseFromStdin = (~refmttypePath, ~customErrorParsers) => {
            ) {
            | ("", false, false, false) =>
              /* no error, just stream on the line */
-             print_endline(line)
+             TerminalReporter.processNonInterestingLines(~customLogOutputProcessors, line)
+             |> print_endline
            | ("", true, _, _)
            | ("", _, true, _)
            | ("", _, _, true) =>
@@ -246,7 +247,7 @@ let parseFromStdin = (~refmttypePath, ~customErrorParsers) => {
                 just assume here that this is also the beginning of a new error, unless
                 a single error might span many (non-indented, god forbid) fileNames.
                 Print out the current (previous) error and keep accumulating */
-             parse(~customErrorParsers, errBuffer.contents)
+             parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
              |> prettyPrintParsedResult
              |> print_endline;
              errBuffer := line ++ "\n"
@@ -263,12 +264,12 @@ let parseFromStdin = (~refmttypePath, ~customErrorParsers) => {
                 errors provide non-indented messages... here's one such case */
              if (Re_pcre.pmatch(~rex=hasHintR, line)) {
                errBuffer := errBuffer.contents ++ line ++ "\n";
-               parse(~customErrorParsers, errBuffer.contents)
+               parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
                |> prettyPrintParsedResult
                |> print_endline;
                errBuffer := ""
              } else {
-               parse(~customErrorParsers, errBuffer.contents)
+               parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
                |> prettyPrintParsedResult
                |> print_endline;
                errBuffer := line ++ "\n"
@@ -277,7 +278,9 @@ let parseFromStdin = (~refmttypePath, ~customErrorParsers) => {
        );
     /* might have accumulated a few more lines */
     if (String.trim(errBuffer.contents) != "") {
-      parse(~customErrorParsers, errBuffer.contents) |> prettyPrintParsedResult |> print_endline
+      parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
+      |> prettyPrintParsedResult
+      |> print_endline
     };
     close_in(stdin)
   } {

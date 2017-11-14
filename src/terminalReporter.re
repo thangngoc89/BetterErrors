@@ -128,6 +128,18 @@ let printFile = (~isWarning=false, {cachedContent, filePath, range}) => {
      )
 };
 
+/**
+ * Processes standard log lines that don't have anything to do with
+ * errors/warnings, or files. Useful for hiding/transforming/relativizing file
+ * paths etc.
+ */
+let processNonInterestingLines = (~customLogOutputProcessors, str) =>
+  List.fold_left(
+    (strSoFar, nextProcessor) => nextProcessor(strSoFar),
+    str,
+    customLogOutputProcessors
+  );
+
 let prettyPrintParsedResult = (~refmttypePath, result: result) =>
   switch result {
   | Unparsable(str) =>

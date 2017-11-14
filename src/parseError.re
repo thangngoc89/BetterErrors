@@ -32,6 +32,7 @@ let splitEquivalentTypes = (raw) =>
 let functionArgsCount = (str) => {
   /* the func type 'a -> (int -> 'b) -> string has 2 arguments */
   /* strip out false positive -> from nested function types passed as param */
+  /* Fortunately, raw ocaml types don't use parenthesis for anything. */
   let nestedFunctionTypeR = Re_pcre.regexp({|\([\s\S]+\)|});
   let cleaned = Re_pcre.substitute(~rex=nestedFunctionTypeR, ~subst=(_) => "|||||", str);
   /* TODO: allow pluggable function type syntax */

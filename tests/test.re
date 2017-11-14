@@ -7,6 +7,8 @@ let folders = [
   /* (directory, number of tests) */
   /* first one is special. See the actual tests loop below */
   ("specialTests", 4),
+  /* `textTests` are simply recorded raw texts ran through berror. */
+  ("textTests", 1),
   ("noError", 1),
   ("prettyPrint", 2),
   ("1_bad_file_name", 1),
@@ -58,15 +60,20 @@ let specialTestsCommands = [
 let forEachTest = (i, (dirname, fileCount)) =>
   for (j in 1 to fileCount) {
     let testsDirname = Filename.concat("tests", dirname);
-    let filename = Filename.concat(testsDirname, Printf.sprintf("%s_%d.ml", dirname, j));
+    let filename =
+      i === 1 ?
+        Filename.concat(testsDirname, Printf.sprintf("%s_%d.txt", dirname, j)) :
+        Filename.concat(testsDirname, Printf.sprintf("%s_%d.ml", dirname, j));
     let expectedOutputName =
       Filename.concat(testsDirname, Printf.sprintf("%s_%d_expected.txt", dirname, j));
     let actualOutputName =
       Filename.concat(testsDirname, Printf.sprintf("%s_%d_actual.txt", dirname, j));
     /* special handling of the first item, specialTests */
     let cmd =
-      if (i == 0) {
+      if (i === 0) {
         List.nth(specialTestsCommands, j - 1)
+      } else if (i === 1) {
+        "cat " ++ filename
       } else {
         "ocamlc " ++ filename
       };

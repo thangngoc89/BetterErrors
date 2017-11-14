@@ -29,4 +29,17 @@ let () =
 
 1;
 
-Index.parseFromStdin(~refmttypePath=refmttypePath^, ~customErrorParsers=[]);
+let longStorePath = Re_pcre.regexp({|\.esy\/\d[_]+\/|});
+
+let prettifyGlobalBuildStores = (logLine) =>
+  Re_pcre.substitute(
+    ~rex=longStorePath,
+    ~subst=(s) => ".esy/" ++ String.make(1, s.[5]) ++ "/",
+    logLine
+  );
+
+Index.parseFromStdin(
+  ~refmttypePath=refmttypePath^,
+  ~customLogOutputProcessors=[prettifyGlobalBuildStores],
+  ~customErrorParsers=[]
+);
