@@ -15,7 +15,7 @@ let report = (~refmttypePath, parsedContent) => {
     switch refmttypePath {
     | None => types
     | Some(path) =>
-      let types = String.concat({|\"|}, types);
+      let types = String.concat("\\\"";, types);
       let cmd = path ++ (sp({| "%s"|}))(types);
       let input = Unix.open_process_in(cmd);
       let result = ref([]);
