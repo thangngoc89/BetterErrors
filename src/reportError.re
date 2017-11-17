@@ -2,45 +2,53 @@ open BetterErrorsTypes;
 
 open Helpers;
 
-let listify = (suggestions) =>
-  suggestions |> List.map((sug) => "- `" ++ sug ++ "`") |> String.concat("\n");
+let suggestifyList = (suggestions) => suggestions |> List.map((sug) => yellow("- " ++ sug));
 
 let highlightPart = (~color, ~part, str) => {
   let indexOfPartInStr = Helpers.stringFind(str, part);
   highlight(~color, ~first=indexOfPartInStr, ~last=indexOfPartInStr + String.length(part), str)
 };
 
-let report = (~refmttypePath, parsedContent) => {
-  let formatOutputSyntax = (types) =>
-    switch refmttypePath {
-    | None => types
-    | Some(path) =>
-      let types = String.concat("\\\"", types);
-      let cmd = path ++ (sp({| "%s"|}))(types);
-      let input = Unix.open_process_in(cmd);
-      let result = ref([]);
-      try (
-        while (true) {
-          result := [input_line(input), ...result^]
-        }
-      ) {
-      | End_of_file => ignore(Unix.close_process_in(input))
-      };
-      List.rev(result^)
+let refmttypeNewlineR = Re_pcre.regexp({|\\n|});
+
+let formatOutputSyntax = (~refmttypePath, types) =>
+  switch refmttypePath {
+  | None => types
+  | Some(path) =>
+    let types = String.concat("\\\"", types);
+    let cmd = path ++ (sp({| "%s"|}))(types);
+    let input = Unix.open_process_in(cmd);
+    let result = {contents: []};
+    try (
+      while (true) {
+        result.contents = [
+          Re_pcre.substitute(~rex=refmttypeNewlineR, ~subst=(_) => "\n", input_line(input)),
+          ...result.contents
+        ]
+      }
+    ) {
+    | End_of_file => ignore(Unix.close_process_in(input))
     };
+    List.rev(result^)
+  };
+
+let report = (~refmttypePath, parsedContent) : list(string) => {
+  let formatOutputSyntax = formatOutputSyntax(~refmttypePath);
+  /*
+   * For some reason refmttype outputs the string (backslash followed by n)
+   * instead of actual newlines.
+   */
   switch parsedContent {
-  | Error_CatchAll(error) => error
-  | Type_MismatchTypeArguments({typeConstructor, expectedCount, actualCount}) =>
-    sp(
-      "This needs to be applied to %d argument%s, we found %d.",
-      expectedCount,
-      if (expectedCount == 1) {
-        ""
-      } else {
-        "s"
-      },
-      actualCount
-    )
+  | NoErrorExtracted => []
+  | Type_MismatchTypeArguments({typeConstructor, expectedCount, actualCount}) => [
+      sp(
+        "You must pass exactly %d argument%s to this variant. You have passed %d argument%s.",
+        expectedCount,
+        expectedCount == 1 ? "" : "s",
+        actualCount,
+        actualCount == 1 ? "" : "s"
+      )
+    ]
   | Type_IncompatibleType({
       actual,
       expected,
@@ -55,83 +63,102 @@ let report = (~refmttypePath, parsedContent) => {
       | [a, b] => (a, b)
       | _ => (actual, expected)
       };
-    sp(
-      "The types don't match.\n%s %s\n%s  %s",
-      red("This is:"),
-      /* (highlightPart color::red part::diffA actual) */
-      highlight(actual),
-      green("Wanted:"),
-      /* (highlightPart color::green part::diffB expected)  */
-      highlight(~color=green, expected)
-    )
-    ++ (
-      switch extra {
-      | Some(e) => "\nExtra info: " ++ e
-      | None => ""
-      }
-    )
+    let main = [
+      "",
+      sp("%s %s", bold("Expecting:"), highlight(~color=green, expected)),
+      sp("%s %s", bold("This type:"), highlight(~color=red, ~bold=true, actual)),
+      "",
+      "This type doesn't match what is expected."
+    ];
+    switch extra {
+    | Some(e) => ["Extra info: " ++ e, ...main]
+    | None => main
+    }
   | Type_NotAFunction({actual}) =>
     let actual =
       switch (formatOutputSyntax([actual])) {
       | [a] => a
       | _ => actual
       };
-    "This is "
-    ++ actual
-    ++ ". You seem to have called it as a function.\n"
-    ++ "Careful with spaces, semicolons, parentheses, and whatever in-between!"
+    [
+      "This has type " ++ actual ++ ", but you are calling it as a function.",
+      "Perhaps you have forgoten a semicolon, or a comma somewhere."
+    ]
   | Type_AppliedTooMany({functionType, expectedArgCount}) =>
     let functionType =
       switch (formatOutputSyntax([functionType])) {
       | [a] => a
       | _ => functionType
       };
-    sp(
-      "This function has type %s\nIt accepts only %d arguments. You gave more. Maybe you forgot a `;` somewhere?",
-      functionType,
-      expectedArgCount
-    )
-  | File_SyntaxError({offendingString, hint}) =>
-    (
-      switch hint {
-      | Some(a) => "The syntax is wrong: " ++ a
-      | None => "The syntax is wrong."
-      }
-    )
-    ++ "\n"
-    ++ (
+    [
+      sp(
+        "It accepts only %d arguments. You gave more. Maybe you forgot a ; somewhere?",
+        expectedArgCount
+      ),
+      sp("This function has type %s", functionType)
+    ]
+  | File_SyntaxError({offendingString, hint}) => [
+      "Note: the location indicated might not be accurate.",
       switch offendingString {
-      | ";" => "Semicolon is an infix symbol used *between* expressions that return `unit` (aka \"nothing\").\n"
+      | ";" => "Make sure all imperative statements, as well as let/type bindings have exactly one semicolon separating them."
       | "else" =>
         "Did you happen to have put a semicolon on the line before else?"
-        ++ " Also, `then` accepts a single expression. If you've put many, wrap them in parentheses.\n"
+        ++ " Also, `then` accepts a single expression. If you've put many, wrap them in parentheses."
       | _ => ""
+      },
+      switch hint {
+      | Some(a) => "This is a syntax error: " ++ a
+      | None => "This is a syntax error."
       }
-    )
-    ++ "Note: the location indicated might not be accurate."
-  | File_IllegalCharacter({character}) =>
-    sp("The character `%s` is illegal. EVERY CHARACTER THAT'S NOT AMERICAN IS ILLEGAL!", character)
+    ]
+  | File_IllegalCharacter({character}) => [sp("The character `%s` is illegal.", character)]
   | Type_UnboundTypeConstructor({namespacedConstructor, suggestion}) =>
     let namespacedConstructor =
       switch (formatOutputSyntax([namespacedConstructor])) {
       | [a] => a
       | _ => namespacedConstructor
       };
-    sp("The type constructor %s can't be found.", namespacedConstructor)
-    ++ (
-      switch suggestion {
-      | None => ""
-      | Some(h) => sp("\nHint: did you mean `%s`?", h)
-      }
-    )
+    let main = sp("The type %s can't be found.", red(~bold=true, namespacedConstructor));
+    switch suggestion {
+    | None => [main]
+    | Some(h) => [sp("Hint: did you mean %s?", yellow(h)), "", main]
+    }
+  | Type_ArgumentCannotBeAppliedWithLabel({functionType, attemptedLabel}) =>
+    let formattedFunctionType =
+      switch (formatOutputSyntax([functionType])) {
+      | [a] => a
+      | _ => functionType
+      };
+    [
+      sp("This function doesn't accept an argument named ~%s.", attemptedLabel),
+      "",
+      sp("The function has type %s", formattedFunctionType)
+    ]
   | Type_UnboundValue({unboundValue, suggestions}) =>
     switch suggestions {
-    | None => sp("`%s` can't be found. Could it be a typo?", unboundValue)
-    | Some([hint]) => sp("`%s` can't be found. Did you mean `%s`?", unboundValue, hint)
-    | Some([hint1, hint2]) =>
-      sp("`%s` can't be found. Did you mean `%s` or `%s`?", unboundValue, hint1, hint2)
+    | None => [
+        sp("The value named %s can't be found. Could it be a typo?", red(~bold=true, unboundValue))
+      ]
+    | Some([hint]) => [
+        sp(
+          "The value named %s can't be found. Did you mean %s?",
+          red(~bold=true, unboundValue),
+          yellow(hint)
+        )
+      ]
+    | Some([hint1, hint2]) => [
+        sp(
+          "%s can't be found. Did you mean %s or %s?",
+          red(~bold=true, unboundValue),
+          yellow(hint1),
+          yellow(hint2)
+        )
+      ]
     | Some(hints) =>
-      sp("`%s` can't be found. Did you mean one of these?\n%s", unboundValue, listify(hints))
+      List.concat([
+        suggestifyList(hints),
+        [sp("%s can't be found. Did you mean one of these?", red(~bold=true, unboundValue))]
+      ])
     }
   | Type_UnboundRecordField({recordField, suggestion}) =>
     let recordField =
@@ -139,38 +166,72 @@ let report = (~refmttypePath, parsedContent) => {
       | [a] => a
       | _ => recordField
       };
+    let main =
+      switch suggestion {
+      | None =>
+        sp("Record field %s can't be found in any record type.", red(~bold=true, recordField))
+      | Some(hint) =>
+        sp(
+          "Record field %s can't be found in any record type. Did you mean %s?",
+          red(~bold=true, recordField),
+          yellow(hint)
+        )
+      };
+    [
+      "Alternatively, instead of opening a module, you can prefix the record field name like {TheModule.x: 0, y: 100}.",
+      "Record fields must be \"in scope\". That means you need to `open TheModule` where the record type is defined.",
+      "",
+      main
+    ]
+  | Type_RecordFieldNotBelongPattern({expressionType, recordField, suggestion}) =>
+    let expressionType =
+      switch (formatOutputSyntax([expressionType])) {
+      | [a] => a
+      | _ => expressionType
+      };
+    let main = [
+      sp("The field %s doesn't belong to it", red(~bold=true, recordField)),
+      sp("This record has type: %s", bold(expressionType))
+    ];
     switch suggestion {
-    | None => sp("Field `%s` can't be found in any record type.", recordField)
-    | Some(hint) =>
-      sp("Field `%s` can't be found in any record type. Did you mean `%s`?", recordField, hint)
+    | None => main
+    | Some(hint) => [sp("Did you mean %s?", yellow(hint)), ...main]
     }
+  | Type_SomeRecordFieldsUndefined(recordField) => [
+      "record is of some other type - one that does have a "
+      ++ bold(recordField)
+      ++ " field. Where else is it used?",
+      "if you use this record in a way that would make the type checker think this",
+      "If you are certain this record shouldn't have a field named "
+      ++ bold(recordField)
+      ++ " then check ",
+      "",
+      sp("You forgot to include the record field named %s.", red(~bold=true, recordField))
+    ]
   | Type_UnboundModule({unboundModule, suggestion}) =>
     let unboundModule =
       switch (formatOutputSyntax([unboundModule])) {
       | [a] => a
       | _ => unboundModule
       };
-    sp("Module `%s` not found in included libraries.\n", unboundModule)
-    ++ (
-      switch suggestion {
-      | Some(s) => sp("Hint: did you mean `%s`?", s)
-      | None =>
-        let pckName = String.lowercase(unboundModule);
-        "Hint: your build rules might be missing a link. If you're using: \n"
-        ++ " - Oasis: make sure you have `"
-        ++ pckName
-        ++ "` under `BuildDepends` in your _oasis file.\n"
-        ++ " - ocamlbuild: make sure you have `-pkgs "
-        ++ pckName
-        ++ "` in your build command.\n"
-        ++ " - ocamlc | ocamlopt: make sure you have `-I +"
-        ++ pckName
-        ++ "` in your build command before the source files.\n"
-        ++ " - ocamlfind: make sure you have `-package "
-        ++ pckName
-        ++ " -linkpkg` in your build command."
-      }
-    )
-  | _ => "huh"
+    let main = sp("Module %s not found in included libraries.\n", red(~bold=true, unboundModule));
+    switch suggestion {
+    | Some(s) => [sp("Hint: did you mean %s?", yellow(s)), main]
+    | None => [
+        sp(" - ocamlbuild: make sure you have `-pkgs libraryName` in your build command."),
+        " - ocamlfind: make sure you have `-package libraryName -linkpkg` in your build command.",
+        sp(
+          " - For jbuilder: make sure you include the library that contains %s in your jbuild file's (libraries ...) section.",
+          unboundModule
+        ),
+        "You can see which libraries are available by doing `ocamlfind list` (or `esy ocamlfind list` inside your esy project)",
+        sp(
+          "Hint: You might need to tell your build system to depend on a library that contains %s.",
+          unboundModule
+        ),
+        main
+      ]
+    }
+  | _ => ["Error beautifier not implemented for this."]
   }
 };

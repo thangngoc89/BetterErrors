@@ -1,6 +1,13 @@
-[36mtests/file_SyntaxError/file_SyntaxError_1.ml:2 11-17
-[0m1 │ let () =
-2 │   I'm glad [31myou're[0m looking at this file =)
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_SyntaxError/file_SyntaxError_1.ml", line 2, characters 11-17:
+  > Error: Syntax error
 
-[31mError[0m: The syntax is wrong.
+[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_1.ml:2 11-17[0m [1m[31m[0m
+1 ¦ let () =
+2 ¦   I'm glad [4m[1m[31myou're[0m looking at this file =)
+
+This is a syntax error.
+
 Note: the location indicated might not be accurate.
+
+

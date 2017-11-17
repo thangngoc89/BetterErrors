@@ -1,8 +1,17 @@
-[36mtests/type_IncompatibleType/type_IncompatibleType_6.ml:3 32-39
-[0m1 │ let iTakeAFunction f a = f "yes" a
-2 │ 
-3 │ let () = ignore (iTakeAFunction [31m"rebel"[0m)
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_IncompatibleType/type_IncompatibleType_6.ml", line 3, characters 32-39:
+  > Error: This expression has type string but an expression was expected of type
+  >          string -> 'a -> 'b
 
-[31mError[0m: The types don't match.
-[31mThis is:[0m [31mstring[0m
-[32mWanted:[0m  [32m(string, 'a) => 'b[0m
+[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_6.ml:3 32-39[0m [1m[31m[0m
+1 ¦ let iTakeAFunction f a = f "yes" a
+2 ¦ 
+3 ¦ let () = ignore (iTakeAFunction [4m[1m[31m"rebel"[0m)
+
+This type doesn't match what is expected.
+
+[1mThis type:[0m [1m[31mstring[0m
+[1mExpecting:[0m [32m(string, 'a) => 'b[0m
+
+
+

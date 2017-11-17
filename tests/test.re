@@ -15,7 +15,7 @@ let folders = [
   ("bad-file-name-2", 1),
   ("file_IllegalCharacter", 1),
   ("file_SyntaxError", 6),
-  ("type_AppliedTooMany", 2),
+  ("type_AppliedTooMany", 3),
   ("type_AppliedWithoutLabel", 1),
   ("type_IncompatibleType", 7),
   ("type_MismatchTypeArguments", 1),
@@ -102,7 +102,9 @@ let forEachTest = (i, (dirname, fileCount)) =>
       print_endline(expected);
       print_newline();
       print_newline();
+      print_string("To accept the changes run:");
       print_newline();
+      print_string("cp " ++ actualOutputName ++ " " ++ expectedOutputName);
       print_newline();
       raise(Not_equal(filename))
     }

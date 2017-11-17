@@ -1,7 +1,12 @@
-[36mtests/warning_PatternUnused/warning_PatternUnused_1.ml:8 2-3
-[0m5 │ let say a = match a with
-6 │ | Hello -> ()
-7 │ | Goodbye -> ()
-8 │ | [33m_[0m -> ()
+  > [4mUnformatted Warning Output:[0m
+  > File "tests/warning_PatternUnused/warning_PatternUnused_1.ml", line 8, characters 2-3:
+  > Warning 11: this match case is unused.
 
-[33mWarning[0m 11: this match case is unused.
+[1m[33mWarning:[0m [4m[36mtests/warning_PatternUnused/warning_PatternUnused_1.ml:8 2-3[0m [1m[33m [Warning Code 11] [0m
+5 ¦ let say a = match a with
+6 ¦ | Hello -> ()
+7 ¦ | Goodbye -> ()
+8 ¦ | [4m[1m[33m_[0m -> ()
+
+
+

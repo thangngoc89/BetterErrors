@@ -1,10 +1,16 @@
-[36mtests/file_SyntaxError/file_SyntaxError_5.ml:4 0-4
-[0m1 │ let () = if true then
-2 │   print_endline "gosh";
-3 │   print_endline "so much functional purity"
-4 │ [31melse[0m
-5 │   print_endline "that I cant even"
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_SyntaxError/file_SyntaxError_5.ml", line 4, characters 0-4:
+  > Error: Syntax error
 
-[31mError[0m: The syntax is wrong.
+[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_5.ml:4 0-4[0m [1m[31m[0m
+1 ¦ let () = if true then
+2 ¦   print_endline "gosh";
+3 ¦   print_endline "so much functional purity"
+4 ¦ [4m[1m[31melse[0m
+5 ¦   print_endline "that I cant even"
+
+This is a syntax error.
 Did you happen to have put a semicolon on the line before else? Also, `then` accepts a single expression. If you've put many, wrap them in parentheses.
 Note: the location indicated might not be accurate.
+
+

@@ -9,11 +9,18 @@ myBuildOutput 2>&1 | berror --path-to-refmttype <refmttype binary here>
 
 let refmttypePath = ref(None);
 
+let raiseExceptionDuringParse = ref(None);
+
 let options = [
   (
     "--path-to-refmttype",
     Arg.String((x) => refmttypePath := Some(x)),
     "<parse>, parse AST as <parse> (either 'ml', 're', 'binary_reason(for interchange between Reason versions)', 'binary (from the ocaml compiler)')"
+  ),
+  (
+    "--raise-exception-during-parse",
+    Arg.String((x) => raiseExceptionDuringParse := Some(x)),
+    "Intentionally raise exception during parsing in order to test resilience"
   )
 ];
 

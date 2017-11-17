@@ -1,8 +1,15 @@
-[36mtests/type_RecordFieldNotBelong/type_RecordFieldNotBelong_1.ml:9 23-24
-[0m6 │ type lol =
-7 │   | Something of asd
-8 │ 
-9 │ let bla (Something {a; [31mb[0m}) = 1
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_RecordFieldNotBelong/type_RecordFieldNotBelong_1.ml", line 9, characters 23-24:
+  > Error: This record pattern is expected to have type asd
+  >        The field b does not belong to type asd
 
-[31mError[0m: This record pattern is expected to have type asd
-       The field b does not belong to type asd
+[1m[31mError:[0m [4m[36mtests/type_RecordFieldNotBelong/type_RecordFieldNotBelong_1.ml:9 23-24[0m [1m[31m[0m
+6 ¦ type lol =
+7 ¦   | Something of asd
+8 ¦ 
+9 ¦ let bla (Something {a; [4m[1m[31mb[0m}) = 1
+
+This record has type: [1masd[0m
+The field [1m[31mb[0m doesn't belong to it
+
+

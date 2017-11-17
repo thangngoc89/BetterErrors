@@ -1,10 +1,19 @@
-[36mtests/type_IncompatibleType/type_IncompatibleType_3.ml:6 8-13
-[0m3 │ }
-4 │ 
-5 │ let takeMeAway = {
-6 │   bla = [31m[|1|][0m;
-7 │ }
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_IncompatibleType/type_IncompatibleType_3.ml", line 6, characters 8-13:
+  > Error: This expression has type 'a array
+  >        but an expression was expected of type string list
 
-[31mError[0m: The types don't match.
-[31mThis is:[0m [31marray('a)[0m
-[32mWanted:[0m  [32mlist(string)[0m
+[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_3.ml:6 8-13[0m [1m[31m[0m
+3 ¦ }
+4 ¦ 
+5 ¦ let takeMeAway = {
+6 ¦   bla = [4m[1m[31m[|1|][0m;
+7 ¦ }
+
+This type doesn't match what is expected.
+
+[1mThis type:[0m [1m[31marray('a)[0m
+[1mExpecting:[0m [32mlist(string)[0m
+
+
+

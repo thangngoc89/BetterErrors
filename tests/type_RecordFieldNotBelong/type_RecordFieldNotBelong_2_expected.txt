@@ -1,11 +1,16 @@
-[36mtests/type_RecordFieldNotBelong/type_RecordFieldNotBelong_2.ml:8 2-4
-[0m 5 │ }
- 6 │ 
- 7 │ let myPoint: point = {
- 8 │   [31mxs[0m = 0;
- 9 │   ys = 10;
-10 │   dogs = "hi";
-11 │ };
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_RecordFieldNotBelong/type_RecordFieldNotBelong_2.ml", line 8, characters 2-4:
+  > Error: This record expression is expected to have type point
+  >        The field xs does not belong to type point
 
-[31mError[0m: This record expression is expected to have type point
-       The field xs does not belong to type point
+[1m[31mError:[0m [4m[36mtests/type_RecordFieldNotBelong/type_RecordFieldNotBelong_2.ml:8 2-4[0m [1m[31m[0m
+ 5 ¦ }
+ 6 ¦ 
+ 7 ¦ let myPoint: point = {
+ 8 ¦   [4m[1m[31mxs[0m = 0;
+ 9 ¦   ys = 10;
+10 ¦   dogs = "hi";
+11 ¦ };
+
+
+

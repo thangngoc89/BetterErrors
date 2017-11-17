@@ -191,23 +191,39 @@ let rec splitInto = (~chunckSize, l: list('a)) : list(list('a)) =>
 
 let resetANSI = "\027[0m";
 
-let red = (s) => "\027[31m" ++ s ++ resetANSI;
+let bold = (s) => "\027[1m" ++ s ++ resetANSI;
 
-let redUnderlined = (s) => "\027[31;4m" ++ s ++ resetANSI;
+let boldCode = (b) => b ? "\027[1m" : "";
 
-let yellow = (s) => "\027[33m" ++ s ++ resetANSI;
+let underlineCode = (u) => u ? "\027[4m" : "";
 
-let yellowUnderlined = (s) => "\027[33;4m" ++ s ++ resetANSI;
+let redCode = "\027[31m";
 
-let green = (s) => "\027[32m" ++ s ++ resetANSI;
+let yellowCode = "\027[33m";
 
-let cyan = (s) => "\027[36m" ++ s ++ resetANSI;
+let greenCode = "\027[32m";
+
+let cyanCode = "\027[36m";
+
+let underline = (s) => underlineCode(true) ++ s ++ resetANSI;
+
+let red = (~underline=false, ~bold=false, s) =>
+  underlineCode(underline) ++ boldCode(bold) ++ redCode ++ s ++ resetANSI;
+
+let yellow = (~underline=false, ~bold=false, s) =>
+  underlineCode(underline) ++ boldCode(bold) ++ yellowCode ++ s ++ resetANSI;
+
+let green = (~underline=false, ~bold=false, s) =>
+  underlineCode(underline) ++ boldCode(bold) ++ greenCode ++ s ++ resetANSI;
+
+let cyan = (~underline=false, ~bold=false, s) =>
+  underlineCode(underline) ++ boldCode(bold) ++ cyanCode ++ s ++ resetANSI;
 
 let mapcat = (sep, f, l) => String.concat(sep, List.map(f, l));
 
 let sp = Printf.sprintf;
 
-let highlight = (~color=red, ~first=0, ~last=99999, str) =>
+let highlight = (~underline=false, ~bold=false, ~color=red, ~first=0, ~last=99999, str) =>
   stringSlice(~last=first, str)
-  ++ color(stringSlice(~first, ~last, str))
+  ++ color(~underline, ~bold, stringSlice(~first, ~last, str))
   ++ stringSlice(~first=last, str);

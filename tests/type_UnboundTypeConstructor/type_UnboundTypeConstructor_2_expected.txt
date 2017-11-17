@@ -1,9 +1,17 @@
-[36mtests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml:5 13-21
-[0m2 │   location: string
-3 │ }
-4 │ type greeting =
-5 │   | Hello of [31mwhereAmI[0m
-6 │   | Goodbye
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml", line 5, characters 13-21:
+  > Error: Unbound type constructor whereAmI
+  > Hint: Did you mean whereAm?
 
-[31mError[0m: The type constructor whereAmI can't be found.
-Hint: did you mean `whereAm`?
+[1m[31mError:[0m [4m[36mtests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml:5 13-21[0m [1m[31m[0m
+2 ¦   location: string
+3 ¦ }
+4 ¦ type greeting =
+5 ¦   | Hello of [4m[1m[31mwhereAmI[0m
+6 ¦   | Goodbye
+
+The type [1m[31mwhereAmI[0m can't be found.
+
+Hint: did you mean [33mwhereAm[0m?
+
+

@@ -1,8 +1,17 @@
-[36mtests/type_UnboundRecordField/type_UnboundRecordField_1.ml:7 2-3
-[0m4 │ 
-5 │ let bla = {
-6 │   a = 5;
-7 │   [31mb[0m = 6;
-8 │ }
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_UnboundRecordField/type_UnboundRecordField_1.ml", line 7, characters 2-3:
+  > Error: Unbound record field b
 
-[31mError[0m: Field `b` can't be found in any record type.
+[1m[31mError:[0m [4m[36mtests/type_UnboundRecordField/type_UnboundRecordField_1.ml:7 2-3[0m [1m[31m[0m
+4 ¦ 
+5 ¦ let bla = {
+6 ¦   a = 5;
+7 ¦   [4m[1m[31mb[0m = 6;
+8 ¦ }
+
+Record field [1m[31mb[0m can't be found in any record type.
+
+Record fields must be "in scope". That means you need to `open TheModule` where the record type is defined.
+Alternatively, instead of opening a module, you can prefix the record field name like {TheModule.x: 0, y: 100}.
+
+

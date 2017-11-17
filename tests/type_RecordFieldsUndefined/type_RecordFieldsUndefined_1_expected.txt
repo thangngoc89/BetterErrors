@@ -1,9 +1,19 @@
-[36mtests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml:6:10-8:1
-[0m3 │   b: string;
-4 │ }
-5 │ 
-6 │ let bla = [31m{[0m
-7 │ [31m  a = 5;[0m
-8 │ [31m}[0m
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml", line 6, characters 10-22:
+  > Error: Some record fields are undefined: b
 
-[31mError[0m: Some record fields are undefined: b
+[1m[31mError:[0m [4m[36mtests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml:6:10-8:1[0m [1m[31m[0m
+3 ¦   b: string;
+4 ¦ }
+5 ¦ 
+6 ¦ let bla = [4m[1m[31m{[0m
+7 ¦ [4m[1m[31m  a = 5;[0m
+8 ¦ [4m[1m[31m}[0m
+
+You forgot to include the record field named [1m[31mb[0m.
+
+If you are certain this record shouldn't have a field named [1mb[0m then check 
+if you use this record in a way that would make the type checker think this
+record is of some other type - one that does have a [1mb[0m field. Where else is it used?
+
+

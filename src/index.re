@@ -136,76 +136,90 @@ let hasIndentationR = Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], {|^       +|
 /* let hasHintRStr = {|^(Here is an example of a value that is not matched:|Hint: Did you mean )|} */
 let hasHintRStr = {|^Hint: Did you mean |};
 
+let argCannotBeAppliedWithLabelRStr = {|^This argument cannot be applied with label|};
+
 let hasHintR = Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], hasHintRStr);
+
+let argCannotBeAppliedWithLabelR =
+  Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], argCannotBeAppliedWithLabelRStr);
+
+let notVisibleInCurrentScopeStr = {|^not visible in the current scope|};
+
+let notVisibleInCurrentScopeR =
+  Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], notVisibleInCurrentScopeStr);
+
+let theyWillNotBeSelectedStr = {|^They will not be selected|};
+
+let theyWillNotBeSelectedR =
+  Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], theyWillNotBeSelectedStr);
 
 let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
   /* we know whatever err is, it starts with "File: ..." because that's how `parse`
      is used */
   let err = String.trim(err);
-  try
-    Re_pcre.(
-      switch (full_split(~rex=fileR, err)) {
-      | [Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
-        /* important, otherwise leaves random blank lines that defies some of
-           our regex logic, maybe */
-        let body = String.trim(body);
-        let errorCapture = get_match_maybe({|^Error: ([\s\S]+)|}, body);
-        switch (ParseError.specialParserThatChecksWhetherFileEvenExists(filePath, errorCapture)) {
-        | Some(err) => err
-        | None =>
-          let cachedContent = Helpers.fileLinesOfExn(filePath);
-          /* sometimes there's only line, but no characters */
-          let (col1Raw, col2Raw) =
-            switch (col1, col2) {
-            | (Group(_, c1), Group(_, c2)) =>
-              /* bug: https://github.com/mmottl/pcre-ocaml/issues/5 */
-              if (String.trim(c1) == "" || String.trim(c2) == "") {
-                raise(Invalid_argument("HUHUHUH"))
-              } else {
-                (Some(c1), Some(c2))
-              }
-            | _ => (None, None)
-            };
-          let range =
-            normalizeCompilerLineColsToRange(
-              ~fileLines=cachedContent,
-              ~lineRaw=lineNum,
-              ~col1Raw,
-              ~col2Raw
-            );
-          let warningCapture =
-            switch (execMaybe({|^Warning (\d+): ([\s\S]+)|}, body)) {
-            | None => (None, None)
-            | Some(capture) => (getSubstringMaybe(capture, 1), getSubstringMaybe(capture, 2))
-            };
-          switch (errorCapture, warningCapture) {
-          | (Some(errorBody), (None, None)) =>
-            ErrorContent({
-              filePath,
-              cachedContent,
-              range,
-              parsedContent:
-                ParseError.parse(~customErrorParsers, ~errorBody, ~cachedContent, ~range)
-            })
-          | (None, (Some(code), Some(warningBody))) =>
-            let code = int_of_string(code);
-            Warning({
-              filePath,
-              cachedContent,
-              range,
-              parsedContent: {
-                code,
-                warningType: ParseWarning.parse(code, warningBody, filePath, cachedContent, range)
-              }
-            })
-          | _ => raise(Invalid_argument(err))
-          }
+  try (
+    switch (Re_pcre.full_split(~rex=fileR, err)) {
+    | [Re_pcre.Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
+      /* important, otherwise leaves random blank lines that defies some of
+         our regex logic, maybe */
+      let body = String.trim(body);
+      let errorCapture = get_match_maybe({|^Error: ([\s\S]+)|}, body);
+      switch (ParseError.specialParserThatChecksWhetherFileEvenExists(filePath, errorCapture)) {
+      | Some(err) => err
+      | None =>
+        let cachedContent = Helpers.fileLinesOfExn(filePath);
+        /* sometimes there's only line, but no characters */
+        let (col1Raw, col2Raw) =
+          switch (col1, col2) {
+          | (Group(_, c1), Group(_, c2)) =>
+            /* bug: https://github.com/mmottl/pcre-ocaml/issues/5 */
+            if (String.trim(c1) == "" || String.trim(c2) == "") {
+              raise(Invalid_argument("HUHUHUH"))
+            } else {
+              (Some(c1), Some(c2))
+            }
+          | _ => (None, None)
+          };
+        let range =
+          normalizeCompilerLineColsToRange(
+            ~fileLines=cachedContent,
+            ~lineRaw=lineNum,
+            ~col1Raw,
+            ~col2Raw
+          );
+        let warningCapture =
+          switch (execMaybe({|^Warning (\d+): ([\s\S]+)|}, body)) {
+          | None => (None, None)
+          | Some(capture) => (getSubstringMaybe(capture, 1), getSubstringMaybe(capture, 2))
+          };
+        switch (errorCapture, warningCapture) {
+        | (Some(errorBody), (None, None)) =>
+          ErrorContent({
+            filePath,
+            cachedContent,
+            range,
+            parsedContent:
+              ParseError.parse(~customErrorParsers, ~errorBody, ~cachedContent, ~range)
+          })
+        | (None, (Some(code), Some(warningBody))) =>
+          let code = int_of_string(code);
+          Warning({
+            filePath,
+            cachedContent,
+            range,
+            parsedContent: {
+              code,
+              warningType: ParseWarning.parse(code, warningBody, filePath, cachedContent, range)
+            }
+          })
+        | _ => raise(Invalid_argument(err))
         }
-      /* not an error, not a warning. False alarm? */
-      | _ => Unparsable(err)
       }
-    ) {
-  | _ => Unparsable(err)
+    /* not an error, not a warning. False alarm? */
+    | _ => Unparsable
+    }
+  ) {
+  | _ => Unparsable
   }
 };
 
@@ -218,68 +232,88 @@ let line_stream_of_channel = (channel) =>
   );
 
 /* entry point, for convenience purposes for now. Theoretically the parser and
-   the reporters are decoupled */
+      the reporters are decoupled.
+      What about errors of the form:
+
+   */
+let revBufferToStr = (revBuffer) => String.concat("\n", List.rev(revBuffer));
+
 let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorParsers) => {
-  let errBuffer = ref("");
+  let reverseErrBuffer = {contents: []};
   let prettyPrintParsedResult = TerminalReporter.prettyPrintParsedResult(~refmttypePath);
+  let forEachLine = (line) =>
+    switch (
+      reverseErrBuffer.contents,
+      Re_pcre.pmatch(~rex=fileR, line),
+      Re_pcre.pmatch(~rex=hasErrorOrWarningR, line),
+      Re_pcre.pmatch(~rex=hasIndentationR, line)
+    ) {
+    | ([], false, false, false) =>
+      /* no error, just stream on the line */
+      print_endline(TerminalReporter.processLogOutput(~customLogOutputProcessors, line))
+    | ([], true, _, _)
+    | ([], _, true, _)
+    | ([], _, _, true) =>
+      /* the beginning of a new error! */
+      reverseErrBuffer.contents = [line]
+    /* don't parse it yet. Maybe the error's continuing on the next line */
+    | (_, true, _, _) =>
+      /* we have a file match, AND the current reverseErrBuffer isn't empty? We'll
+         just assume here that this is also the beginning of a new error, unless
+         a single error might span many (non-indented, god forbid) fileNames.
+         Print out the current (previous) error and keep accumulating */
+      let bufferText = revBufferToStr(reverseErrBuffer.contents);
+      parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
+      |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
+      |> revBufferToStr
+      |> print_endline;
+      reverseErrBuffer.contents = [line]
+    /* buffer not empty, and we're seeing an error/indentation line. This is
+       the continuation of a currently streaming error/warning */
+    | (_, _, _, true)
+    | (_, _, true, _) => reverseErrBuffer.contents = [line, ...reverseErrBuffer.contents]
+    | (_, false, false, false) =>
+      /* woah this case was previously forgotten but caught by the
+             compiler. Man I don't ever wanna write an if-else anymore
+             buffer not empty, and no indentation and not an error/file
+             line? This means the previous error might have ended. We say
+             "might" because some errors provide non-indented messages...
+             here's one such case (hasHintR). And here's another:
+             Error: The function applied to this argument has type
+                      customLogOutputProcessors:(string -> string) list ->
+                      customErrorParsers:(string * string list) list -> unit
+             This argument cannot be applied with label ~raiseExceptionDuringParse
+         */
+      if (Re_pcre.pmatch(~rex=hasHintR, line)
+          || Re_pcre.pmatch(~rex=argCannotBeAppliedWithLabelR, line)
+          || Re_pcre.pmatch(~rex=notVisibleInCurrentScopeR, line)
+          || Re_pcre.pmatch(~rex=theyWillNotBeSelectedR, line)) {
+        reverseErrBuffer.contents =
+          [line, ...reverseErrBuffer.contents]
+          /* let bufferText = revBufferToStr(reverseErrBuffer.contents);
+           * parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
+           * |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
+           * |> revBufferToStr
+           * |> print_endline;
+           * reverseErrBuffer.contents = []
+           */
+      } else {
+        let bufferText = revBufferToStr(reverseErrBuffer.contents);
+        parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
+        |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
+        |> revBufferToStr
+        |> print_endline;
+        reverseErrBuffer.contents = [line]
+      }
+    };
   try {
-    line_stream_of_channel(stdin)
-    |> Stream.iter(
-         (line) =>
-           switch (
-             errBuffer.contents,
-             Re_pcre.pmatch(~rex=fileR, line),
-             Re_pcre.pmatch(~rex=hasErrorOrWarningR, line),
-             Re_pcre.pmatch(~rex=hasIndentationR, line)
-           ) {
-           | ("", false, false, false) =>
-             /* no error, just stream on the line */
-             TerminalReporter.processNonInterestingLines(~customLogOutputProcessors, line)
-             |> print_endline
-           | ("", true, _, _)
-           | ("", _, true, _)
-           | ("", _, _, true) =>
-             /* the beginning of a new error! */
-             errBuffer := line ++ "\n"
-           /* don't parse it yet. Maybe the error's continuing on the next line */
-           | (_, true, _, _) =>
-             /* we have a file match, AND the current errBuffer isn't empty? We'll
-                just assume here that this is also the beginning of a new error, unless
-                a single error might span many (non-indented, god forbid) fileNames.
-                Print out the current (previous) error and keep accumulating */
-             parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
-             |> prettyPrintParsedResult
-             |> print_endline;
-             errBuffer := line ++ "\n"
-           | (_, _, _, true)
-           | (_, _, true, _) =>
-             /* buffer not empty, and we're seeing an error/indentation line. This is
-                the continuation of a currently streaming error/warning */
-             errBuffer := errBuffer.contents ++ line ++ "\n"
-           | (_, false, false, false) =>
-             /* woah this case was previously forgotten but caught by the compiler.
-                Man I don't ever wanna write an if-else anymore */
-             /* buffer not empty, and no indentation and not an error/file line? This
-                means the previous error might have ended. We say "might" because some
-                errors provide non-indented messages... here's one such case */
-             if (Re_pcre.pmatch(~rex=hasHintR, line)) {
-               errBuffer := errBuffer.contents ++ line ++ "\n";
-               parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
-               |> prettyPrintParsedResult
-               |> print_endline;
-               errBuffer := ""
-             } else {
-               parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
-               |> prettyPrintParsedResult
-               |> print_endline;
-               errBuffer := line ++ "\n"
-             }
-           }
-       );
+    line_stream_of_channel(stdin) |> Stream.iter(forEachLine);
     /* might have accumulated a few more lines */
-    if (String.trim(errBuffer.contents) != "") {
-      parse(~customLogOutputProcessors, ~customErrorParsers, errBuffer.contents)
-      |> prettyPrintParsedResult
+    if (reverseErrBuffer.contents !== []) {
+      let bufferText = revBufferToStr(reverseErrBuffer.contents);
+      parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
+      |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
+      |> revBufferToStr
       |> print_endline
     };
     close_in(stdin)

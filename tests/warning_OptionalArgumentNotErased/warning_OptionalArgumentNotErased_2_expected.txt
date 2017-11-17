@@ -1,8 +1,15 @@
-[36mtests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml:1:16-2:17
-[0m1 │ let eat aNumber [33m?(withFork=true) =[0m
-2 │ [33m  "Hello, world!"[0m
-3 │ 
-4 │ let () = print_endline (eat 1 ~withFork:false)
+  > [4mUnformatted Warning Output:[0m
+  > File "tests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml", line 1, characters 16-52:
+  > Warning 16: this optional argument cannot be erased.
 
-[33mWarning[0m 16: `withFork` is an optional argument at last position; calling the function by omitting withFork might be confused with currying.
-The rule: an optional argument is erased as soon as the 1st positional (i.e. neither labeled nor optional) argument defined after it is passed in.
+[1m[33mWarning:[0m [4m[36mtests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml:1:16-2:17[0m [1m[33m [Warning Code 16] [0m
+1 ¦ let eat aNumber [4m[1m[33m?(withFork=true) =[0m
+2 ¦ [4m[1m[33m  "Hello, world!"[0m
+3 ¦ 
+4 ¦ let () = print_endline (eat 1 ~withFork:false)
+
+[1m[31mwithFork[0m is an optional argument at last position; calling the function by omitting withFork might be confused with currying.
+
+The solution is usually to provide a final non-named argument, or a final unit() argument if necessary.
+
+

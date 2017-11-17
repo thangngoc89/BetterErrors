@@ -39,6 +39,11 @@ type unboundTypeConstructor = {
   suggestion: option(string)
 };
 
+type argumentCannotBeAppliedWithLabel = {
+  functionType: string,
+  attemptedLabel: string
+};
+
 type appliedTooMany = {
   functionType: string,
   expectedArgCount: int
@@ -48,6 +53,12 @@ type recordFieldNotInExpression = {
   constructor: string,
   expectedCount: int,
   observedCount: int
+};
+
+type recordFieldNotBelong = {
+  expressionType: string,
+  recordField: string,
+  suggestion: option(string)
 };
 
 type recordFieldError = {
@@ -119,7 +130,7 @@ type warningType =
   | Warning_PatternUnused(unusedVariable)
   | Warning_OptionalArgumentNotErased(optionalArgumentNotErased)
   | Warning_BadFileName(badFileName)
-  | Warning_CatchAll(string);
+  | NoWarningExtracted;
 
 type error =
   | Type_MismatchTypeArguments(mismatchTypeArguments)
@@ -130,18 +141,20 @@ type error =
   | Type_UnboundRecordField(unboundRecordField)
   | Type_UnboundConstructor(unboundConstructor)
   | Type_UnboundTypeConstructor(unboundTypeConstructor)
+  | Type_ArgumentCannotBeAppliedWithLabel(argumentCannotBeAppliedWithLabel)
   | Type_AppliedTooMany(appliedTooMany)
   | Type_RecordFieldNotInExpression(recordFieldNotInExpression)
+  | Type_RecordFieldNotBelongPattern(recordFieldNotBelong)
+  | Type_SomeRecordFieldsUndefined(string)
   | Type_RecordFieldError(recordFieldError)
   /* might be the same thing as above? jordan wrote "record expression" instead of "pattern" */
-  | Type_RecordFieldNotBelong(recordFieldError)
   | Type_FieldNotBelong(fieldNotBelong)
   | Type_IncompatibleType(incompatibleType)
   | Type_NotAFunction(notAFunction)
   | File_SyntaxError(syntaxError)
   | Build_InconsistentAssumptions(inconsistentAssumptions)
   | File_IllegalCharacter(illegalCharacter)
-  | Error_CatchAll(string);
+  | NoErrorExtracted;
 
 type fileError =
   | NoneFile(string)
@@ -162,7 +175,7 @@ type withFileInfo('a) = {
 };
 
 type result =
-  | Unparsable(string)
+  | Unparsable
   | ErrorFile(fileError)
   | ErrorContent(withFileInfo(error))
   | Warning(withFileInfo(warning));

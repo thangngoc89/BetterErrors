@@ -1,9 +1,15 @@
-[36mtests/file_SyntaxError/file_SyntaxError_4.ml:5 23-24
-[0m2 │   path: string;
-3 │   messages: message list;
-4 │ }
-5 │ type output = file list[31m;[0m
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_SyntaxError/file_SyntaxError_4.ml", line 5, characters 23-24:
+  > Error: Syntax error
 
-[31mError[0m: The syntax is wrong.
-Semicolon is an infix symbol used *between* expressions that return `unit` (aka "nothing").
+[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_4.ml:5 23-24[0m [1m[31m[0m
+2 ¦   path: string;
+3 ¦   messages: message list;
+4 ¦ }
+5 ¦ type output = file list[4m[1m[31m;[0m
+
+This is a syntax error.
+Make sure all imperative statements, as well as let/type bindings have exactly one semicolon separating them.
 Note: the location indicated might not be accurate.
+
+

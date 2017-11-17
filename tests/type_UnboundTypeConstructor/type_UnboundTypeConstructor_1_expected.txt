@@ -1,6 +1,12 @@
-[36mtests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_1.ml:2 13-21
-[0m1 │ type asd =
-2 │   | Hello of [31mwhereAmI[0m
-3 │   | Goodbye
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_1.ml", line 2, characters 13-21:
+  > Error: Unbound type constructor whereAmI
 
-[31mError[0m: The type constructor whereAmI can't be found.
+[1m[31mError:[0m [4m[36mtests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_1.ml:2 13-21[0m [1m[31m[0m
+1 ¦ type asd =
+2 ¦   | Hello of [4m[1m[31mwhereAmI[0m
+3 ¦   | Goodbye
+
+The type [1m[31mwhereAmI[0m can't be found.
+
+

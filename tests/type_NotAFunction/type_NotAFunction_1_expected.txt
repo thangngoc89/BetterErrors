@@ -1,6 +1,14 @@
-[36mtests/type_NotAFunction/type_NotAFunction_1.ml:2 2-23
-[0m1 │ let a =
-2 │   [31m[[[[[[[[[[5]]]]]]]]]][0m ()
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_NotAFunction/type_NotAFunction_1.ml", line 2, characters 2-23:
+  > Error: This expression has type
+  >          int list list list list list list list list list list
+  >        This is not a function; it cannot be applied.
 
-[31mError[0m: This is list(list(list(list(list(list(list(list(list(list(int)))))))))). You seem to have called it as a function.
-Careful with spaces, semicolons, parentheses, and whatever in-between!
+[1m[31mError:[0m [4m[36mtests/type_NotAFunction/type_NotAFunction_1.ml:2 2-23[0m [1m[31m[0m
+1 ¦ let a =
+2 ¦   [4m[1m[31m[[[[[[[[[[5]]]]]]]]]][0m ()
+
+Perhaps you have forgoten a semicolon, or a comma somewhere.
+This has type list(list(list(list(list(list(list(list(list(list(int)))))))))), but you are calling it as a function.
+
+

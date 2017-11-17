@@ -1,8 +1,14 @@
-[36mtests/file_IllegalCharacter/file_IllegalCharacter_1.ml:2 2-3
-[0m1 │ let () =
-2 │   [31m\[0mhahaha look at me
-3 │   roaming free
-4 │   this is a haiku
-5 │   kidding it's not
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_IllegalCharacter/file_IllegalCharacter_1.ml", line 2, characters 2-3:
+  > Error: Illegal character (\\)
 
-[31mError[0m: The character `\\` is illegal. EVERY CHARACTER THAT'S NOT AMERICAN IS ILLEGAL!
+[1m[31mError:[0m [4m[36mtests/file_IllegalCharacter/file_IllegalCharacter_1.ml:2 2-3[0m [1m[31m[0m
+1 ¦ let () =
+2 ¦   [4m[1m[31m\[0mhahaha look at me
+3 ¦   roaming free
+4 ¦   this is a haiku
+5 ¦   kidding it's not
+
+The character `\\` is illegal.
+
+

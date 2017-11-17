@@ -1,9 +1,21 @@
-[36mtests/file_SyntaxError/file_SyntaxError_3.ml:1 12-13
-[0m1 │ let a = (1, [31m2[0m
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_SyntaxError/file_SyntaxError_3.ml", line 2, characters 0-0:
+  > Error: Syntax error: ')' expected
 
-[31mError[0m: The syntax is wrong: ')' expected
+[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_3.ml:1 12-13[0m [1m[31m[0m
+1 ¦ let a = (1, [4m[1m[31m2[0m
+
+This is a syntax error: ')' expected
+
 Note: the location indicated might not be accurate.
-[36mtests/file_SyntaxError/file_SyntaxError_3.ml:1 8-9
-[0m1 │ let a = [31m([0m1, 2
 
-[31mError[0m: This '(' might be unmatched
+
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_SyntaxError/file_SyntaxError_3.ml", line 1, characters 8-9:
+  > Error: This '(' might be unmatched
+
+[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_3.ml:1 8-9[0m [1m[31m[0m
+1 ¦ let a = [4m[1m[31m([0m1, 2
+
+
+

@@ -1,6 +1,13 @@
-[36mtests/file_SyntaxError/file_SyntaxError_6.ml:2 2-7
-[0m1 │ type fruits =
-2 │ | [31mapple[0m of string
+  > [4mUnformatted Error Output:[0m
+  > File "tests/file_SyntaxError/file_SyntaxError_6.ml", line 2, characters 2-7:
+  > Error: Syntax error
 
-[31mError[0m: The syntax is wrong.
+[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_6.ml:2 2-7[0m [1m[31m[0m
+1 ¦ type fruits =
+2 ¦ | [4m[1m[31mapple[0m of string
+
+This is a syntax error.
+
 Note: the location indicated might not be accurate.
+
+

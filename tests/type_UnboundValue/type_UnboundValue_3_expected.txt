@@ -1,6 +1,12 @@
-[36mtests/type_UnboundValue/type_UnboundValue_3.ml:3 16-17
-[0m1 │ let f ~a b = 5 + a
-2 │ 
-3 │ let eleven = f ~[31ma[0m 6
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_UnboundValue/type_UnboundValue_3.ml", line 3, characters 16-17:
+  > Error: Unbound value a
 
-[31mError[0m: `a` can't be found. Could it be a typo?
+[1m[31mError:[0m [4m[36mtests/type_UnboundValue/type_UnboundValue_3.ml:3 16-17[0m [1m[31m[0m
+1 ¦ let f ~a b = 5 + a
+2 ¦ 
+3 ¦ let eleven = f ~[4m[1m[31ma[0m 6
+
+The value named [1m[31ma[0m can't be found. Could it be a typo?
+
+

@@ -80,15 +80,12 @@ let parsers = [
   warning_BadFileName
 ];
 
-let parse = (code, warningBody, filePath, cachedContent, range) =>
-  try (
-    Helpers.listFindMap(
-      (parse') =>
-        try (Some(parse'(code, warningBody, filePath, cachedContent, range))) {
-        | _ => None
-        },
-      parsers
-    )
-  ) {
-  | Not_found => Warning_CatchAll(warningBody)
-  };
+let parse = (code, warningBody, filePath, cachedContent, range) => {
+  let tryParser = (parse') =>
+    try (Some(parse'(code, warningBody, filePath, cachedContent, range))) {
+    | _ => None
+    };
+  try (Helpers.listFindMap(tryParser, parsers)) {
+  | Not_found => NoWarningExtracted
+  }
+};

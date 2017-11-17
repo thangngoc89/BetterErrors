@@ -88,8 +88,8 @@ let type_IncompatibleType = (err, _, range) => {
 let type_MismatchTypeArguments = (err, _, _) => {
   let allR = {|The constructor ([\w\.]*) *expects[\s]*(\d+) *argument\(s\),\s*but is applied here to (\d+) argument\(s\)|};
   let typeConstructor = get_match_n(1, allR, err);
-  let expectedCount = int_of_string (get_match_n(2, allR, err));
-  let actualCount = int_of_string (get_match_n(3, allR, err));
+  let expectedCount = int_of_string(get_match_n(2, allR, err));
+  let actualCount = int_of_string(get_match_n(3, allR, err));
   Type_MismatchTypeArguments({typeConstructor, expectedCount, actualCount})
 };
 
@@ -127,6 +127,22 @@ let type_UnboundRecordField = (err, _, _) => {
   Type_UnboundRecordField({recordField, suggestion})
 };
 
+let type_RecordFieldNotBelongPattern = (err, _, _) => {
+  let expressionTypeR = {|This record pattern is expected to have type (\w+)|};
+  let recordFieldR = {|The field (\w+) does not belong to type|};
+  let expressionType = get_match(expressionTypeR, err);
+  let recordField = get_match(recordFieldR, err);
+  let suggestionR = {|Hint: Did you mean (\w+)\?|};
+  let suggestion = get_match_maybe(suggestionR, err);
+  Type_RecordFieldNotBelongPattern({expressionType, recordField, suggestion})
+};
+
+let type_SomeRecordFieldsUndefined = (err, _, _) => {
+  let recordFieldR = {|Some record fields are undefined: (\w+)|};
+  let recordField = get_match(recordFieldR, err);
+  Type_SomeRecordFieldsUndefined(recordField)
+};
+
 let type_UnboundConstructor = (err, cachedContent) => raise(Not_found);
 
 let type_UnboundTypeConstructor = (err, _, _) => {
@@ -143,6 +159,14 @@ let type_AppliedTooMany = (err, _, _) => {
   let functionTypeR = {|This function has type([\s\S]+)It is applied to too many arguments; maybe you forgot a `;'.|};
   let functionType = String.trim(get_match(functionTypeR, err));
   Type_AppliedTooMany({functionType, expectedArgCount: functionArgsCount(functionType)})
+};
+
+let type_ArgumentCannotBeAppliedWithLabel = (err, cachedContent, range) => {
+  let functionTypeR = {|The function applied to this argument has type([\s\S]+)This argument cannot be applied with label|};
+  let attemptedLabelR = {|This argument cannot be applied with label ~([a-z_][a-zA-Z0-9_\$]+)|};
+  let functionType = String.trim(get_match(functionTypeR, err));
+  let attemptedLabel = String.trim(get_match(attemptedLabelR, err));
+  Type_ArgumentCannotBeAppliedWithLabel({functionType, attemptedLabel})
 };
 
 let type_RecordFieldNotInExpression = (err, cachedContent, range) => raise(Not_found);
@@ -193,9 +217,12 @@ let parsers = [
   type_SignatureItemMissing,
   type_UnboundModule,
   type_UnboundRecordField,
+  type_RecordFieldNotBelongPattern,
+  type_SomeRecordFieldsUndefined,
   type_UnboundConstructor,
   type_UnboundTypeConstructor,
   type_AppliedTooMany,
+  type_ArgumentCannotBeAppliedWithLabel,
   type_RecordFieldNotInExpression,
   type_RecordFieldError,
   type_FieldNotBelong,
@@ -247,14 +274,13 @@ let specialParserThatChecksWhetherFileEvenExists = (filePath, errorBody) =>
 let parse = (~customErrorParsers, ~errorBody, ~cachedContent, ~range) =>
   /* custom parsers go first */
   try (
-    customErrorParsers
-    @ parsers
-    |> Helpers.listFindMap(
-         (parse) =>
-           try (Some(parse(errorBody, cachedContent, range))) {
-           | _ => None
-           }
-       )
+    Helpers.listFindMap(
+      (parse) =>
+        try (Some(parse(errorBody, cachedContent, range))) {
+        | _ => None
+        },
+      List.append(customErrorParsers, parsers)
+    )
   ) {
-  | Not_found => Error_CatchAll(errorBody)
+  | Not_found => NoErrorExtracted
   };
