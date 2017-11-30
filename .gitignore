@@ -18,3 +18,5 @@ node_modules
 .jenga
 *.install
 tests/test.ml
+
+yarn-error.log

@@ -15,11 +15,11 @@
     "name": "chenglou"
   },
   "peerDependencies": {
-    "ocaml": " >= 4.2.0  < 4.6.0"
+    "ocaml": " >= 4.2.0  < 4.7.0"
   },
   "devDependencies": {
-    "@opam/merlin": "^2.0.0",
-    "ocaml": "~4.2.3000"
+    "@opam/merlin": "^3.0.0",
+    "ocaml": "~4.6.0"
   },
   "esy": {
     "build": [
