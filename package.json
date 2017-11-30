@@ -1,6 +1,6 @@
 {
   "name": "refmterr",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Reason Formatting of Errors",
   "dependencies": {
     "@opam/jbuilder": "*",
