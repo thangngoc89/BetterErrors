@@ -8,3 +8,5 @@ tests
 *.install
 .git
 *.png
+
+yarn-error.log
