@@ -19,3 +19,10 @@ Record fields that aren't found might be include long paths.
 
       Record fields must be "in scope". That means you need to `open TheModule` where the record type is defined.
       Alternatively, instead of opening a module, you can prefix the record field name like {TheModule.x: 0, y: 100}.
+
+
+Newer compiler versions spit out warnings that are turned to errors like this:
+
+
+File "src/lib/LayoutSupport.re", line 561, characters 31-36:
+Error (warning 27): unused variable width.
