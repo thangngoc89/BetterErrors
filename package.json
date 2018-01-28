@@ -1,11 +1,11 @@
 {
   "name": "refmterr",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "Reason Formatting of Errors",
   "dependencies": {
     "@opam/jbuilder": "*",
     "@opam/re": "*",
-    "@opam/reason": "^3.0.0"
+    "@esy-ocaml/reason": "^3.0.0"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
     "ocaml": " >= 4.2.0  < 4.7.0"
   },
   "devDependencies": {
-    "@opam/merlin": "^3.0.0",
+    "@esy-ocaml/merlin": "*",
     "ocaml": "~4.6.0"
   },
   "esy": {
@@ -35,11 +35,5 @@
       ]
     ],
     "buildsInSource": "_build"
-  },
-  "_registry": "npm",
-  "_loc": "/Users/jwalke/github/esy-ocaml/esy-reason-project/node_modules/refmterr/package.json",
-  "readmeFilename": "README.md",
-  "readme": "# `refmterr`: Reason Formatting of Errors for Native Builds.\n\n#### Demo\n![Demo](https://raw.githubusercontent.com/esy-ocaml/BetterErrors/master/demo.png)\n\n\n## Support\n\n- This is an [`esy`](https://github.com/esy-ocaml/esy) compatible package.\n- Supports `ocamlopt/ocamlc` versions `4.02.3`-`4.05`.\n\n## Usage\n\n**Package Builds:**\n\nAdd a dependency on `refmterr`, and `@opam/reason` in your `dependencies`, and\nthen you will be able to wrap your build commands with `refmterr`. For example,\ninstead of using `make build` as your build command, use `remfterr make build`.\n\n```json\n{\n  \"esy\": {\n    \"build\":  [\n      [\"refmterr make build\"]\n    ],\n    ...\n  },\n\n  \"dependencies\": {\n    \"refmterr\": \"^3.0.0\",\n    \"@opam/reason\": \"^3.0.0\"\n  }\n}\n```\n\n**Command Line Usage:**\n\nYou can wrap any command that outputs `ocamlopt/ocamlc` error messages.  For\nexample, from your sandboxed project with the above `package.json`, you could\nrun:\n\n```sh\nesy refmterr ocamlopt -pp refmt someFile.re\n```\n\nand have any errors/warnings printed more readably.\n\n## Contributing\n\n- Install the latest esy `npm install -g esy`.\n- `git clone` this repo, `cd` into it, then run:\n```sh\nesy install\nesy build\nesy ./runTests.sh\n```\n",
-  "licenseText": "The MIT License (MIT)\n\nCopyright (c) 2015-present Cheng Lou\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
-  "license": "MIT"
+  }
 }

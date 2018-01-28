@@ -13,7 +13,7 @@
 
 
   > [4mUnformatted Error Output:[0m
-  > File "tests/type_IncompatibleType/type_IncompatibleType_4.ml", line 14, characters 41-58:
+  > File "tests/type_IncompatibleType/type_IncompatibleType_4.ml", line 14, characters 40-86:
   > Error: This expression has type
   >          TopNotchModule.Nested.wow = TopNotchModule.myRecordListListList list
   >        but an expression was expected of type
@@ -26,11 +26,11 @@
   >          TopNotchModule.myRecordListList = TopNotchModule.myRecordList list
   >        is not compatible with type TopNotchModule.jeSuisString = string 
 
-[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_4.ml:14 41-58[0m [1m[31m[0m
+[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_4.ml:14 40-86[0m [1m[31m[0m
 11 ¦   end
 12 ¦ end
 13 ¦ 
-14 ¦ let asd: TopNotchModule.jeSuisStrings = ([4m[1m[31m[[[{nihao = 1}]]][0m: TopNotchModule.Nested.wow)
+14 ¦ let asd: TopNotchModule.jeSuisStrings = [4m[1m[31m([[[{nihao = 1}]]]: TopNotchModule.Nested.wow)[0m
 
 This type doesn't match what is expected.
 

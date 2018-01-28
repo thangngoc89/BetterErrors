@@ -75,7 +75,7 @@ let forEachTest = (i, (dirname, fileCount)) =>
       } else if (i === 1) {
         "cat " ++ filename
       } else {
-        "ocamlc " ++ filename
+        "ocamlc -w +40 " ++ filename
       };
     /* expecting compiling errors in stderr; pipe to a file */
     ignore(

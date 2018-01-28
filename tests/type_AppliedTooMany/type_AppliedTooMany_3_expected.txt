@@ -14,7 +14,7 @@
 13 ¦     ~customErrorParsers:[]
 
 The function has type (
-  ~customLogOutputProcessors: list((string => string)),
+  ~customLogOutputProcessors: list(string => string),
   ~customErrorParsers: list((string, list(string)))
 ) =>
 unit
