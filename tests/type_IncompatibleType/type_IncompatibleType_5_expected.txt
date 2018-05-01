@@ -13,7 +13,7 @@
 
 
   > [4mUnformatted Error Output:[0m
-  > File "tests/type_IncompatibleType/type_IncompatibleType_5.ml", line 17, characters 3-18:
+  > File "tests/type_IncompatibleType/type_IncompatibleType_5.ml", line 17, characters 2-52:
   > Error: This expression has type
   >          TopNotchModule.myRecordListList = TopNotchModule.myRecordList list
   >        but an expression was expected of type
@@ -21,11 +21,11 @@
   >        Type TopNotchModule.myRecordList = TopNotchModule.myRecord list
   >        is not compatible with type PettyModule.youAreAString = string 
 
-[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_5.ml:17 3-18[0m [1m[31m[0m
+[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_5.ml:17 2-52[0m [1m[31m[0m
 14 ¦ end
 15 ¦ 
 16 ¦ let asd: PettyModule.Nested.weAreStrings =
-17 ¦   ([4m[1m[31m[[{nihao = 1}]][0m: TopNotchModule.myRecordListList)
+17 ¦   [4m[1m[31m([[{nihao = 1}]]: TopNotchModule.myRecordListList)[0m
 
 This type doesn't match what is expected.
 

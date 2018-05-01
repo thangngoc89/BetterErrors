@@ -1,10 +1,10 @@
   > [4mUnformatted Warning Output:[0m
-  > File "tests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml", line 1, characters 16-52:
+  > File "tests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml", line 1, characters 18-31:
   > Warning 16: this optional argument cannot be erased.
 
-[1m[33mWarning:[0m [4m[36mtests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml:1:16-2:17[0m [1m[33m [Warning Code 16] [0m
-1 ¦ let eat aNumber [4m[1m[33m?(withFork=true) =[0m
-2 ¦ [4m[1m[33m  "Hello, world!"[0m
+[1m[33mWarning:[0m [4m[36mtests/warning_OptionalArgumentNotErased/warning_OptionalArgumentNotErased_2.ml:1 18-31[0m [1m[33m [Warning Code 16] [0m
+1 ¦ let eat aNumber ?([4m[1m[33mwithFork=true[0m) =
+2 ¦   "Hello, world!"
 3 ¦ 
 4 ¦ let () = print_endline (eat 1 ~withFork:false)
 

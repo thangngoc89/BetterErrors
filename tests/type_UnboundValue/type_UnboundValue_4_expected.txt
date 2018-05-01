@@ -1,7 +1,7 @@
   > [4mUnformatted Error Output:[0m
   > File "tests/type_UnboundValue/type_UnboundValue_4.ml", line 6, characters 19-29:
   > Error: Unbound value poshanossy
-  > Hint: Did you mean poshanessy, poshanyssy, poshanissy or poshanassy?
+  > Hint: Did you mean poshanessy, poshanissy, poshanyssy or poshanassy?
 
 [1m[31mError:[0m [4m[36mtests/type_UnboundValue/type_UnboundValue_4.ml:6 19-29[0m [1m[31m[0m
 3 ¦ let poshanissy = 3
@@ -11,8 +11,8 @@
 
 [1m[31mposhanossy[0m can't be found. Did you mean one of these?
 [33m- poshanassy[0m
-[33m- poshanissy[0m
 [33m- poshanyssy[0m
+[33m- poshanissy[0m
 [33m- poshanessy[0m
 
 
