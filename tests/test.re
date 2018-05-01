@@ -95,10 +95,17 @@ let forEachTest = (i, (dirname, fileCount)) =>
     /* ignore @@ Sys.command @@ Printf.sprintf("cp %s %s", actualOutputName, expectedOutputName); */
     /* TODO: show the differences */
     if (actual != expected) {
+      print_endline("The test output does not match what was expected.");
+      print_newline();
+      print_endline("----------------------------------------------------------------------");
       print_endline("Actual:" ++ actualOutputName);
+      print_endline("----------------------------------------------------------------------");
       print_endline(actual);
       print_newline();
+      print_newline();
+      print_endline("----------------------------------------------------------------------");
       print_endline("Expected:" ++ expectedOutputName);
+      print_endline("----------------------------------------------------------------------");
       print_endline(expected);
       print_newline();
       print_newline();
