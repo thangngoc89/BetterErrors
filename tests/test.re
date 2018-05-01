@@ -28,24 +28,26 @@ let folders = [
   ("type_UnboundValue", 4),
   ("warning_OptionalArgumentNotErased", 2),
   ("warning_PatternNotExhaustive", 2),
-  ("warning_PatternUnused", 1)
+  ("warning_PatternUnused", 1),
 ];
 
 exception Not_equal(string);
 
-let readFile = (filePath) => {
+let readFile = filePath => {
   let lines = {contents: []};
   let chan = open_in(filePath);
-  try {
-    while (true) {
-      lines.contents = [input_line(chan), ...lines.contents]
-    };
-    "this will never be reached"
-  } {
+  try (
+    {
+      while (true) {
+        lines.contents = [input_line(chan), ...lines.contents];
+      };
+      "this will never be reached";
+    }
+  ) {
   | End_of_file =>
     close_in(chan);
-    List.rev(lines.contents) |> String.concat("\n")
-  }
+    List.rev(lines.contents) |> String.concat("\n");
+  };
 };
 
 /* these generate ocaml errors that points to nonexistant files. Handle them
@@ -54,7 +56,7 @@ let specialTestsCommands = [
   "ocamlc -open NonExistantModule foo.ml",
   "ocamlc nonexistentFile.cmo",
   "ocamlc nonexistentFile.ml",
-  "echo \"let a:string = 1\" | utop -stdin"
+  "echo \"let a:string = 1\" | utop -stdin",
 ];
 
 let forEachTest = (i, (dirname, fileCount)) =>
@@ -62,20 +64,29 @@ let forEachTest = (i, (dirname, fileCount)) =>
     let testsDirname = Filename.concat("tests", dirname);
     let filename =
       i === 1 ?
-        Filename.concat(testsDirname, Printf.sprintf("%s_%d.txt", dirname, j)) :
+        Filename.concat(
+          testsDirname,
+          Printf.sprintf("%s_%d.txt", dirname, j),
+        ) :
         Filename.concat(testsDirname, Printf.sprintf("%s_%d.ml", dirname, j));
     let expectedOutputName =
-      Filename.concat(testsDirname, Printf.sprintf("%s_%d_expected.txt", dirname, j));
+      Filename.concat(
+        testsDirname,
+        Printf.sprintf("%s_%d_expected.txt", dirname, j),
+      );
     let actualOutputName =
-      Filename.concat(testsDirname, Printf.sprintf("%s_%d_actual.txt", dirname, j));
+      Filename.concat(
+        testsDirname,
+        Printf.sprintf("%s_%d_actual.txt", dirname, j),
+      );
     /* special handling of the first item, specialTests */
     let cmd =
       if (i === 0) {
-        List.nth(specialTestsCommands, j - 1)
+        List.nth(specialTestsCommands, j - 1);
       } else if (i === 1) {
-        "cat " ++ filename
+        "cat " ++ filename;
       } else {
-        "ocamlc -w +40 " ++ filename
+        "ocamlc -w +40 " ++ filename;
       };
     /* expecting compiling errors in stderr; pipe to a file */
     ignore(
@@ -83,9 +94,9 @@ let forEachTest = (i, (dirname, fileCount)) =>
         Printf.sprintf(
           "%s 2>&1 | ./_build/install/default/bin/berror.exe --path-to-refmttype refmttype > %s",
           cmd,
-          actualOutputName
-        )
-      )
+          actualOutputName,
+        ),
+      ),
     );
     /* open the produced error output */
     let expected = readFile(expectedOutputName);
@@ -97,15 +108,23 @@ let forEachTest = (i, (dirname, fileCount)) =>
     if (actual != expected) {
       print_endline("The test output does not match what was expected.");
       print_newline();
-      print_endline("----------------------------------------------------------------------");
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
       print_endline("Actual:" ++ actualOutputName);
-      print_endline("----------------------------------------------------------------------");
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
       print_endline(actual);
       print_newline();
       print_newline();
-      print_endline("----------------------------------------------------------------------");
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
       print_endline("Expected:" ++ expectedOutputName);
-      print_endline("----------------------------------------------------------------------");
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
       print_endline(expected);
       print_newline();
       print_newline();
@@ -113,20 +132,22 @@ let forEachTest = (i, (dirname, fileCount)) =>
       print_newline();
       print_string("cp " ++ actualOutputName ++ " " ++ expectedOutputName);
       print_newline();
-      raise(Not_equal(filename))
-    }
+      raise(Not_equal(filename));
+    };
   };
 
-try {
-  List.iteri(forEachTest, folders);
-  print_endline("ALL GOOD!");
-  ignore(Sys.command("rm -rf ./tests/**/*.{cmi,cmo}"))
-} {
+try (
+  {
+    List.iteri(forEachTest, folders);
+    print_endline("ALL GOOD!");
+    ignore(Sys.command("rm -rf ./tests/**/*.{cmi,cmo}"));
+  }
+) {
 /* trust me I'm not evil */
 /* the leftover cmi and cmo files from some partially failed ocamlc above
    cause the next `make` build to fail out of refusal to compile with these
    leftover artifact, so we remove them */
 | a =>
   ignore(Sys.command("rm -rf ./tests/**/*.{cmi,cmo}"));
-  raise(a)
+  raise(a);
 };

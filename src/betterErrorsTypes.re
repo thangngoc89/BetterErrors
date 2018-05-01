@@ -3,90 +3,90 @@
 type mismatchTypeArguments = {
   typeConstructor: string,
   expectedCount: int,
-  actualCount: int
+  actualCount: int,
 };
 
 type unboundValue = {
   unboundValue: string,
-  suggestions: option(list(string))
+  suggestions: option(list(string)),
 };
 
 type signatureMismatch = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type signatureItemMissing = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type unboundModule = {
   unboundModule: string,
-  suggestion: option(string)
+  suggestion: option(string),
 };
 
 type unboundConstructor = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type unboundTypeConstructor = {
   namespacedConstructor: string,
-  suggestion: option(string)
+  suggestion: option(string),
 };
 
 type argumentCannotBeAppliedWithLabel = {
   functionType: string,
-  attemptedLabel: string
+  attemptedLabel: string,
 };
 
 type appliedTooMany = {
   functionType: string,
-  expectedArgCount: int
+  expectedArgCount: int,
 };
 
 type recordFieldNotInExpression = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type recordFieldNotBelong = {
   expressionType: string,
   recordField: string,
-  suggestion: option(string)
+  suggestion: option(string),
 };
 
 type recordFieldError = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type inconsistentAssumptions = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type catchAll = {
   warningCode: int,
-  message: string
+  message: string,
 };
 
 type unusedVariable = {
   constructor: string,
   expectedCount: int,
-  observedCount: int
+  observedCount: int,
 };
 
 type fieldNotBelong = {
   actual: string,
-  expected: string
+  expected: string,
 };
 
 type badFileName =
@@ -100,14 +100,14 @@ type incompatibleType = {
   differingPortion: (string, string),
   actualEquivalentType: option(string),
   expectedEquivalentType: option(string),
-  extra: option(string)
+  extra: option(string),
 };
 
 type notAFunction = {actual: string};
 
 type syntaxError = {
   offendingString: string,
-  hint: option(string)
+  hint: option(string),
 };
 
 type illegalCharacter = {character: string};
@@ -118,7 +118,7 @@ type unparsableButWithFileInfo = {error: string};
 
 type unboundRecordField = {
   recordField: string,
-  suggestion: option(string)
+  suggestion: option(string),
 };
 
 type optionalArgumentNotErased = {argumentName: string};
@@ -164,14 +164,14 @@ type fileError =
 
 type warning = {
   code: int,
-  warningType
+  warningType,
 };
 
 type withFileInfo('a) = {
   filePath: string,
   cachedContent: list(string),
   range: Atom.Range.t,
-  parsedContent: 'a
+  parsedContent: 'a,
 };
 
 type result =

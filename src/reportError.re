@@ -2,17 +2,23 @@ open BetterErrorsTypes;
 
 open Helpers;
 
-let suggestifyList = (suggestions) => suggestions |> List.map((sug) => yellow("- " ++ sug));
+let suggestifyList = suggestions =>
+  suggestions |> List.map(sug => yellow("- " ++ sug));
 
 let highlightPart = (~color, ~part, str) => {
   let indexOfPartInStr = Helpers.stringFind(str, part);
-  highlight(~color, ~first=indexOfPartInStr, ~last=indexOfPartInStr + String.length(part), str)
+  highlight(
+    ~color,
+    ~first=indexOfPartInStr,
+    ~last=indexOfPartInStr + String.length(part),
+    str,
+  );
 };
 
 let refmttypeNewlineR = Re_pcre.regexp({|\\n|});
 
 let formatOutputSyntax = (~refmttypePath, types) =>
-  switch refmttypePath {
+  switch (refmttypePath) {
   | None => types
   | Some(path) =>
     let types = String.concat("\\\"", types);
@@ -22,14 +28,18 @@ let formatOutputSyntax = (~refmttypePath, types) =>
     try (
       while (true) {
         result.contents = [
-          Re_pcre.substitute(~rex=refmttypeNewlineR, ~subst=(_) => "\n", input_line(input)),
-          ...result.contents
-        ]
+          Re_pcre.substitute(
+            ~rex=refmttypeNewlineR,
+            ~subst=(_) => "\n",
+            input_line(input),
+          ),
+          ...result.contents,
+        ];
       }
     ) {
     | End_of_file => ignore(Unix.close_process_in(input))
     };
-    List.rev(result^)
+    List.rev(result^);
   };
 
 let report = (~refmttypePath, parsedContent) : list(string) => {
@@ -38,7 +48,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
    * For some reason refmttype outputs the string (backslash followed by n)
    * instead of actual newlines.
    */
-  switch parsedContent {
+  switch (parsedContent) {
   | NoErrorExtracted => []
   | Type_MismatchTypeArguments({typeConstructor, expectedCount, actualCount}) => [
       sp(
@@ -46,8 +56,8 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
         expectedCount,
         expectedCount == 1 ? "" : "s",
         actualCount,
-        actualCount == 1 ? "" : "s"
-      )
+        actualCount == 1 ? "" : "s",
+      ),
     ]
   | Type_IncompatibleType({
       actual,
@@ -55,7 +65,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       differingPortion,
       actualEquivalentType,
       expectedEquivalentType,
-      extra
+      extra,
     }) =>
     /* let (diffA, diffB) = differingPortion; */
     let (actual, expected) =
@@ -66,14 +76,18 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     let main = [
       "",
       sp("%s %s", bold("Expecting:"), highlight(~color=green, expected)),
-      sp("%s %s", bold("This type:"), highlight(~color=red, ~bold=true, actual)),
+      sp(
+        "%s %s",
+        bold("This type:"),
+        highlight(~color=red, ~bold=true, actual),
+      ),
       "",
-      "This type doesn't match what is expected."
+      "This type doesn't match what is expected.",
     ];
-    switch extra {
+    switch (extra) {
     | Some(e) => ["Extra info: " ++ e, ...main]
     | None => main
-    }
+    };
   | Type_NotAFunction({actual}) =>
     let actual =
       switch (formatOutputSyntax([actual])) {
@@ -82,8 +96,8 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       };
     [
       "This has type " ++ actual ++ ", but you are calling it as a function.",
-      "Perhaps you have forgoten a semicolon, or a comma somewhere."
-    ]
+      "Perhaps you have forgoten a semicolon, or a comma somewhere.",
+    ];
   | Type_AppliedTooMany({functionType, expectedArgCount}) =>
     let functionType =
       switch (formatOutputSyntax([functionType])) {
@@ -93,36 +107,42 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     [
       sp(
         "It accepts only %d arguments. You gave more. Maybe you forgot a ; somewhere?",
-        expectedArgCount
+        expectedArgCount,
       ),
-      sp("This function has type %s", functionType)
-    ]
+      sp("This function has type %s", functionType),
+    ];
   | File_SyntaxError({offendingString, hint}) => [
       "Note: the location indicated might not be accurate.",
-      switch offendingString {
+      switch (offendingString) {
       | ";" => "Make sure all imperative statements, as well as let/type bindings have exactly one semicolon separating them."
       | "else" =>
         "Did you happen to have put a semicolon on the line before else?"
         ++ " Also, `then` accepts a single expression. If you've put many, wrap them in parentheses."
       | _ => ""
       },
-      switch hint {
+      switch (hint) {
       | Some(a) => "This is a syntax error: " ++ a
       | None => "This is a syntax error."
-      }
+      },
     ]
-  | File_IllegalCharacter({character}) => [sp("The character `%s` is illegal.", character)]
+  | File_IllegalCharacter({character}) => [
+      sp("The character `%s` is illegal.", character),
+    ]
   | Type_UnboundTypeConstructor({namespacedConstructor, suggestion}) =>
     let namespacedConstructor =
       switch (formatOutputSyntax([namespacedConstructor])) {
       | [a] => a
       | _ => namespacedConstructor
       };
-    let main = sp("The type %s can't be found.", red(~bold=true, namespacedConstructor));
-    switch suggestion {
+    let main =
+      sp(
+        "The type %s can't be found.",
+        red(~bold=true, namespacedConstructor),
+      );
+    switch (suggestion) {
     | None => [main]
     | Some(h) => [sp("Hint: did you mean %s?", yellow(h)), "", main]
-    }
+    };
   | Type_ArgumentCannotBeAppliedWithLabel({functionType, attemptedLabel}) =>
     let formattedFunctionType =
       switch (formatOutputSyntax([functionType])) {
@@ -130,34 +150,45 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       | _ => functionType
       };
     [
-      sp("This function doesn't accept an argument named ~%s.", attemptedLabel),
+      sp(
+        "This function doesn't accept an argument named ~%s.",
+        attemptedLabel,
+      ),
       "",
-      sp("The function has type %s", formattedFunctionType)
-    ]
+      sp("The function has type %s", formattedFunctionType),
+    ];
   | Type_UnboundValue({unboundValue, suggestions}) =>
-    switch suggestions {
+    switch (suggestions) {
     | None => [
-        sp("The value named %s can't be found. Could it be a typo?", red(~bold=true, unboundValue))
+        sp(
+          "The value named %s can't be found. Could it be a typo?",
+          red(~bold=true, unboundValue),
+        ),
       ]
     | Some([hint]) => [
         sp(
           "The value named %s can't be found. Did you mean %s?",
           red(~bold=true, unboundValue),
-          yellow(hint)
-        )
+          yellow(hint),
+        ),
       ]
     | Some([hint1, hint2]) => [
         sp(
           "%s can't be found. Did you mean %s or %s?",
           red(~bold=true, unboundValue),
           yellow(hint1),
-          yellow(hint2)
-        )
+          yellow(hint2),
+        ),
       ]
     | Some(hints) =>
       List.concat([
         suggestifyList(hints),
-        [sp("%s can't be found. Did you mean one of these?", red(~bold=true, unboundValue))]
+        [
+          sp(
+            "%s can't be found. Did you mean one of these?",
+            red(~bold=true, unboundValue),
+          ),
+        ],
       ])
     }
   | Type_UnboundRecordField({recordField, suggestion}) =>
@@ -167,23 +198,30 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       | _ => recordField
       };
     let main =
-      switch suggestion {
+      switch (suggestion) {
       | None =>
-        sp("Record field %s can't be found in any record type.", red(~bold=true, recordField))
+        sp(
+          "Record field %s can't be found in any record type.",
+          red(~bold=true, recordField),
+        )
       | Some(hint) =>
         sp(
           "Record field %s can't be found in any record type. Did you mean %s?",
           red(~bold=true, recordField),
-          yellow(hint)
+          yellow(hint),
         )
       };
     [
       "Alternatively, instead of opening a module, you can prefix the record field name like {TheModule.x: 0, y: 100}.",
       "Record fields must be \"in scope\". That means you need to `open TheModule` where the record type is defined.",
       "",
-      main
-    ]
-  | Type_RecordFieldNotBelongPattern({expressionType, recordField, suggestion}) =>
+      main,
+    ];
+  | Type_RecordFieldNotBelongPattern({
+      expressionType,
+      recordField,
+      suggestion,
+    }) =>
     let expressionType =
       switch (formatOutputSyntax([expressionType])) {
       | [a] => a
@@ -191,12 +229,12 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       };
     let main = [
       sp("The field %s doesn't belong to it", red(~bold=true, recordField)),
-      sp("This record has type: %s", bold(expressionType))
+      sp("This record has type: %s", bold(expressionType)),
     ];
-    switch suggestion {
+    switch (suggestion) {
     | None => main
     | Some(hint) => [sp("Did you mean %s?", yellow(hint)), ...main]
-    }
+    };
   | Type_SomeRecordFieldsUndefined(recordField) => [
       "record is of some other type - one that does have a "
       ++ bold(recordField)
@@ -206,7 +244,10 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       ++ bold(recordField)
       ++ " then check ",
       "",
-      sp("You forgot to include the record field named %s.", red(~bold=true, recordField))
+      sp(
+        "You forgot to include the record field named %s.",
+        red(~bold=true, recordField),
+      ),
     ]
   | Type_UnboundModule({unboundModule, suggestion}) =>
     let unboundModule =
@@ -214,24 +255,30 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       | [a] => a
       | _ => unboundModule
       };
-    let main = sp("Module %s not found in included libraries.\n", red(~bold=true, unboundModule));
-    switch suggestion {
+    let main =
+      sp(
+        "Module %s not found in included libraries.\n",
+        red(~bold=true, unboundModule),
+      );
+    switch (suggestion) {
     | Some(s) => [sp("Hint: did you mean %s?", yellow(s)), main]
     | None => [
-        sp(" - ocamlbuild: make sure you have `-pkgs libraryName` in your build command."),
+        sp(
+          " - ocamlbuild: make sure you have `-pkgs libraryName` in your build command.",
+        ),
         " - ocamlfind: make sure you have `-package libraryName -linkpkg` in your build command.",
         sp(
           " - For jbuilder: make sure you include the library that contains %s in your jbuild file's (libraries ...) section.",
-          unboundModule
+          unboundModule,
         ),
         "You can see which libraries are available by doing `ocamlfind list` (or `esy ocamlfind list` inside your esy project)",
         sp(
           "Hint: You might need to tell your build system to depend on a library that contains %s.",
-          unboundModule
+          unboundModule,
         ),
-        main
+        main,
       ]
-    }
+    };
   | _ => ["Error beautifier not implemented for this."]
-  }
+  };
 };
