@@ -1,6 +1,6 @@
 (* Test wrong type all by itself *)
 module type Sig = sig
-  val hasWrongType: string -> unit
+  val hasWrongType: stringParam:string -> intParam:int -> unitParam:unit -> anotherStringParam:string -> unit
 end
 
 module MyModule : Sig = struct

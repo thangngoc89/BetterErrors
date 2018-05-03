@@ -351,7 +351,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
           sp("  the signatures says that %s should have type:", bold(named)),
           "",
           "  " ++ highlight(~bold=true, ~color=green, named ++ ":"),
-          "  " ++ highlight(~bold=true, ~color=green, good),
+          highlight(~bold=true, ~color=green, indentStr("  ", good)),
           "",
           "",
           sp(
@@ -363,7 +363,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
           sp("  your module's %s has type:", bold(named)),
           "",
           "  " ++ highlight(~bold=true, ~color=red, named ++ ":"),
-          "  " ++ highlight(~bold=true, ~color=red, bad),
+          highlight(~bold=true, ~color=red, indentStr("  ", bad)),
           "",
         ],
       );

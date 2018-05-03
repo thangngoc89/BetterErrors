@@ -2,8 +2,6 @@ open BetterErrorsTypes;
 
 open Helpers;
 
-let indent = (prefixStr, lines) => List.map(s => prefixStr ++ s, lines);
-
 let numberOfDigits = n => {
   let digits = ref(1);
   let nn = ref(n);

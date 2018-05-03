@@ -1,3 +1,11 @@
+let indent = (prefixStr, lines) => List.map(s => prefixStr ++ s, lines);
+
+let indentStr =
+  (prefixStr, s) =>
+    String.split_on_char('\n', s)
+    |> List.map(s => prefixStr ++ s)
+    |> String.concat("\n");
+
 /* Batteries library substitutes */
 let listDrop = (n, lst) => {
   let lst = ref(lst);
