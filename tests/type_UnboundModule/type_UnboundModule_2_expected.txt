@@ -4,12 +4,12 @@
 [2m# [0m[2mHint: Did you mean Pancake?[0m
 
 
-[7m[1m[31m ERROR [0m [4m[34mtests/type_UnboundModule/type_UnboundModule_2.ml[0m[4m[2m[39m:10 5-63[0m [1m[31m[0m
+[7m[1m[31m ERROR [0m [4m[36mtests/type_UnboundModule/type_UnboundModule_2.ml[0m[4m[2m[39m:10 5-63[0m [1m[31m[0m
 
 [2m 7 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  end[0m[0m[0m[0m[0m
 [2m 8 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39mend[0m[0m[0m[0m[0m
 [2m 9 ┆ [0m
-[2m[31m10 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mopen[0m[2m[39m [0m[0m[0m[0m[0m[4m[31mHelloWorld.ThisMorningIThink.IWillEatSomeDelicious.Pancaek[0m
+[2m[31m10 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mopen[0m[2m[39m [0m[0m[0m[0m[0m[4m[1m[31mHelloWorld.ThisMorningIThink.IWillEatSomeDelicious.Pancaek[0m
 
 Module [1m[31mHelloWorld.ThisMorningIThink.IWillEatSomeDelicious.Pancaek;[0m not found in included libraries.
 

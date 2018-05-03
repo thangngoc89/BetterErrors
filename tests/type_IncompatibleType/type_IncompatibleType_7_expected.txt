@@ -1,14 +1,16 @@
-  > [4mUnformatted Error Output:[0m
-  > File "tests/type_IncompatibleType/type_IncompatibleType_7.ml", line 15, characters 13-16:
-  > Error: This expression has type Abc.myInt -> Def.myFloat
-  >        but an expression was expected of type Abc.myString -> Def.myBool
-  >        Type Abc.myInt = int is not compatible with type Abc.myString = string 
+[2m[1m[39m# Unformatted Error Output:[0m
+[2m# [0m[2mFile "tests/type_IncompatibleType/type_IncompatibleType_7.ml", line 15, characters 13-16:[0m
+[2m# [0m[2mError: This expression has type Abc.myInt -> Def.myFloat[0m
+[2m# [0m[2m       but an expression was expected of type Abc.myString -> Def.myBool[0m
+[2m# [0m[2m       Type Abc.myInt = int is not compatible with type Abc.myString = string [0m
 
-[1m[31mError:[0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_7.ml:15 13-16[0m [1m[31m[0m
-12 ¦ 
-13 ¦ let dec (f: Abc.myString -> Def.myBool) = 1
-14 ¦ 
-15 ¦ let () = dec [4m[1m[31minc[0m
+
+[7m[1m[31m ERROR [0m [4m[36mtests/type_IncompatibleType/type_IncompatibleType_7.ml[0m[4m[2m[39m:15 13-16[0m [1m[31m[0m
+
+[2m12 ┆ [0m
+[2m13 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m dec (f: [0m[2m[34mAbc[0m[2m[39m.myString -> [0m[2m[34mDef[0m[2m[39m.myBool) = [0m[2m[34m1[0m[2m[39m[0m[0m[0m[0m[0m
+[2m14 ┆ [0m
+[2m[31m15 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m () = dec [0m[0m[0m[0m[0m[4m[1m[31minc[0m
 
 This type doesn't match what is expected.
 
