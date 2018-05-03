@@ -1,13 +1,15 @@
-  > [4mUnformatted Warning Output:[0m
-  > File "tests/warning_PatternNotExhaustive/warning_PatternNotExhaustive_1.ml", line 5, characters 12-38:
-  > Warning 8: this pattern-matching is not exhaustive.
+[2m[1m[39m# Unformatted Warning Output:[0m
+[2m# [0m[2mFile "tests/warning_PatternNotExhaustive/warning_PatternNotExhaustive_1.ml", line 5, characters 12-38:[0m
+[2m# [0m[2mWarning 8: this pattern-matching is not exhaustive.[0m
 
-[1m[33mWarning:[0m [4m[36mtests/warning_PatternNotExhaustive/warning_PatternNotExhaustive_1.ml:5:12-6:13[0m [1m[33m [Warning Code 8] [0m
-2 ¦   | Hello
-3 ¦   | Goodbye
-4 ¦ 
-5 ¦ let say a = [4m[1m[33mmatch a with[0m
-6 ¦ [4m[1m[33m| Hello -> ()[0m
+
+[7m[1m[33m WARNING [0m [4m[34mtests/warning_PatternNotExhaustive/warning_PatternNotExhaustive_1.ml[0m[4m[2m[39m:5:12-6:13[0m [1m[33m [Warning Code 8] [0m
+
+[2m2 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  | [0m[2m[36mHello[0m[2m[39m[0m[0m[0m[0m[0m
+[2m3 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  | [0m[2m[36mGoodbye[0m[2m[39m[0m[0m[0m[0m[0m
+[2m4 ┆ [0m
+[2m[31m5 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m say a = [0m[0m[0m[0m[0m[4m[31mmatch a with[0m
+[2m[31m6 ┆ [0m[4m[31m| Hello -> ([0m
 
 
 

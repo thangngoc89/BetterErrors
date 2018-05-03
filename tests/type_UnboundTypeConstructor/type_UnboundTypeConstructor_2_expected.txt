@@ -1,14 +1,16 @@
-  > [4mUnformatted Error Output:[0m
-  > File "tests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml", line 5, characters 13-21:
-  > Error: Unbound type constructor whereAmI
-  > Hint: Did you mean whereAm?
+[2m[1m[39m# Unformatted Error Output:[0m
+[2m# [0m[2mFile "tests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml", line 5, characters 13-21:[0m
+[2m# [0m[2mError: Unbound type constructor whereAmI[0m
+[2m# [0m[2mHint: Did you mean whereAm?[0m
 
-[1m[31mError:[0m [4m[36mtests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml:5 13-21[0m [1m[31m[0m
-2 ¦   location: string
-3 ¦ }
-4 ¦ type greeting =
-5 ¦   | Hello of [4m[1m[31mwhereAmI[0m
-6 ¦   | Goodbye
+
+[7m[1m[31m ERROR [0m [4m[34mtests/type_UnboundTypeConstructor/type_UnboundTypeConstructor_2.ml[0m[4m[2m[39m:5 13-21[0m [1m[31m[0m
+
+[2m2 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  location: [0m[2m[33mstring[0m[2m[39m[0m[0m[0m[0m[0m
+[2m3 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m}[0m[0m[0m[0m[0m
+[2m4 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mtype[0m[2m[39m greeting =[0m[0m[0m[0m[0m
+[2m[31m5 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  | [0m[2m[36mHello[0m[2m[39m of [0m[0m[0m[0m[0m[4m[31mwhereAmI[0m
+[2m6 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  | [0m[2m[36mGoodbye[0m[2m[39m[0m[0m[0m[0m[0m
 
 The type [1m[31mwhereAmI[0m can't be found.
 

@@ -1,14 +1,16 @@
-  > [4mUnformatted Error Output:[0m
-  > File "tests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml", line 6, characters 10-22:
-  > Error: Some record fields are undefined: b
+[2m[1m[39m# Unformatted Error Output:[0m
+[2m# [0m[2mFile "tests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml", line 6, characters 10-22:[0m
+[2m# [0m[2mError: Some record fields are undefined: b[0m
 
-[1m[31mError:[0m [4m[36mtests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml:6:10-8:1[0m [1m[31m[0m
-3 ¦   b: string;
-4 ¦ }
-5 ¦ 
-6 ¦ let bla = [4m[1m[31m{[0m
-7 ¦ [4m[1m[31m  a = 5;[0m
-8 ¦ [4m[1m[31m}[0m
+
+[7m[1m[31m ERROR [0m [4m[34mtests/type_RecordFieldsUndefined/type_RecordFieldsUndefined_1.ml[0m[4m[2m[39m:6:10-8:1[0m [1m[31m[0m
+
+[2m3 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  b: [0m[2m[33mstring[0m[2m[39m;[0m[0m[0m[0m[0m
+[2m4 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m}[0m[0m[0m[0m[0m
+[2m5 ┆ [0m
+[2m[31m6 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m bla = [0m[0m[0m[0m[0m[4m[31m{[0m
+[2m[31m7 ┆ [0m[4m[31m  a = 5;[0m
+[2m[31m8 ┆ [0m[4m[31m}[0m
 
 You forgot to include the record field named [1m[31mb[0m.
 

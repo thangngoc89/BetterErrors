@@ -2,30 +2,82 @@ open BetterErrorsTypes;
 
 open Helpers;
 
-let indent = (prefixStr, lines) => List.map((s) => prefixStr ++ s, lines);
+let indent = (prefixStr, lines) => List.map(s => prefixStr ++ s, lines);
 
-let numberOfDigits = (n) => {
+let numberOfDigits = n => {
   let digits = ref(1);
   let nn = ref(n);
   while (nn^ / 10 > 0) {
     nn := nn^ / 10;
-    digits := digits^ + 1
+    digits := digits^ + 1;
   };
-  digits^
+  digits^;
 };
 
-let pad = (~ch=' ', content, n) => String.make(n - String.length(content), ch) ++ content;
+let pad = (~ch=' ', content, n) =>
+  String.make(n - String.length(content), ch) ++ content;
 
-let startingSpacesCount = (str) => {
+let startingSpacesCount = str => {
   let rec startingSpacesCount' = (str, idx) =>
     if (idx == String.length(str)) {
-      idx
+      idx;
     } else if (str.[idx] != ' ') {
-      idx
+      idx;
     } else {
-      startingSpacesCount'(str, idx + 1)
+      startingSpacesCount'(str, idx + 1);
     };
-  startingSpacesCount'(str, 0)
+  startingSpacesCount'(str, 0);
+};
+
+let tokens = [
+  ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
+  ({|\bif\b|\belse\b|\bfor\b|\bwhile\b|\bswitch\b|\bstring\b|\blist\b|}, yellow),
+  ({|\b[0-9]+\b|}, blue),
+  ({|\b[A-Z][A-Za-z0-9_]*\b|}, blue),
+  ({|\s\+\+\s|\s\+\s|\s\-\s|\s=>\s|\s==\s|}, red),
+];
+
+/*
+ * This is so much more complicated because highlighting doesn't support
+ * nesting right now.
+ */
+let rec highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
+  switch tokens {
+    | [] => txt
+    | [(regexStr, color), ...tl] =>
+      let rex = Re_pcre.regexp(regexStr);
+      let splitted = Re_pcre.full_split(~rex, txt);
+      let strings = List.map(
+        fun
+          | Re_pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
+          | Delim(s)
+          | Group(_, s) => highlight(~dim, ~bold, ~underline, ~color, s)
+          | NoGroup => "",
+        splitted
+      );
+      let joined = String.concat("", strings);
+      highlightTokens(~dim, ~bold, ~underline, joined, tl);
+  };
+};
+let highlightSource = (~dim=false, ~underline=false, ~bold=false, txt) => {
+  let splitOnQuotes = String.split_on_char('"', txt);
+  let balancedQuotes = List.length(splitOnQuotes) mod 2 === 1;
+  if (balancedQuotes) {
+    let chunks =
+      List.mapi(
+        (i, chunk) => {
+          if (i mod 2 === 0) {
+            highlightTokens(~dim, ~underline, ~bold, chunk, tokens);
+          } else {
+            highlight(~dim, ~underline, ~color=green, "\"" ++ chunk ++ "\"")
+          }
+        },
+        splitOnQuotes
+      );
+    String.concat("", chunks);
+  } else {
+    highlightTokens(~dim, ~bold, ~underline, txt, tokens);
+  };
 };
 
 /* row and col 0-indexed; endColumn is 1 past the actual end. See
@@ -35,7 +87,7 @@ let _printFile =
       ~titleLine,
       ~highlightColor as color,
       ~highlight as ((startRow, startColumn), (endRow, endColumn)),
-      content
+      content,
     ) => {
   let displayedStartRow = max(0, startRow - 3);
   /* we display no more than 3 lines after startRow. Some endRow are rly far
@@ -47,97 +99,131 @@ let _printFile =
   let rowsForCountingStartingSpaces =
     listDrop(displayedStartRow, content)
     |> listTake(displayedEndRow - displayedStartRow + 1)
-    |> List.filter((row) => row != "");
+    |> List.filter(row => row != "");
   let minIndent =
-    switch rowsForCountingStartingSpaces {
+    switch (rowsForCountingStartingSpaces) {
     | [] => 0
     | _ =>
-      let startingSpaces = List.map(startingSpacesCount, rowsForCountingStartingSpaces);
-      List.fold_left((acc, num) => num < acc ? num : acc, List.hd(startingSpaces), startingSpaces)
+      let startingSpaces =
+        List.map(startingSpacesCount, rowsForCountingStartingSpaces);
+      List.fold_left(
+        (acc, num) => num < acc ? num : acc,
+        List.hd(startingSpaces),
+        startingSpaces,
+      );
     };
   /*
    * TODO: Create a better vertical separator for the second case.
    */
-  let sep = minIndent === 0 ? " ¦ " : " ¦ ";
+  let sep = minIndent === 0 ? " ┆ " : " ┆ ";
   let startColumn = startColumn - minIndent;
   let endColumn = endColumn - minIndent;
-  let revResult = ref([titleLine]);
+  /* Sometimes a file based error will have start=end column == 0 */
+  let revResult = ref(["", titleLine]);
   for (i in displayedStartRow to displayedEndRow) {
     let currLine = List.nth(content, i) |> stringSlice(~first=minIndent);
     if (i >= startRow && i <= endRow) {
       if (startRow == endRow) {
-        let highlighted =
-          highlight(
-            ~underline=true,
-            ~bold=true,
-            ~color,
-            ~first=startColumn,
-            ~last=endColumn,
-            currLine
-          );
+        /* Have to process from the end content first because it changes the
+         * range. */
+        /* Note: ~last/endColumn /endColumn is not really the last index to highlight but one beyond it. */
+        let highlightedEnd = highlightSource(~dim=true, stringSlice(~first=endColumn, currLine));
+        let highlightedMiddle =
+          red(~bold=true, ~underline=true, ~dim=false, stringSlice(~first=startColumn, ~last=endColumn, currLine));
+        let highlightedBeginning = highlightSource(~dim=true, stringSlice(~last=startColumn, currLine));
+        let highlighted = highlightedBeginning ++ highlightedMiddle ++ highlightedEnd;
         revResult.contents = [
-          pad(string_of_int(i + 1), lineNumWidth) ++ sep ++ highlighted,
-          ...revResult.contents
-        ]
+          red(~dim=true, pad(string_of_int(i + 1), lineNumWidth) ++ sep) ++ highlighted,
+          ...revResult.contents,
+        ];
       } else if (i == startRow) {
+        let highlightedEnd = red(~bold=true, ~underline=true, stringSlice(~first=startColumn, currLine));
+        let highlightedBeginning = highlightSource(~dim=true, stringSlice(~last=startColumn, currLine));
+        let highlighted = highlightedBeginning ++  highlightedEnd;
         revResult.contents = [
-          pad(string_of_int(i + 1), lineNumWidth)
-          ++ sep
-          ++ highlight(~underline=true, ~bold=true, ~color, ~first=startColumn, currLine),
-          ...revResult.contents
-        ]
+          red(~dim=true, pad(string_of_int(i + 1), lineNumWidth) ++ sep) ++ highlighted,
+          ...revResult.contents,
+        ];
       } else if (i == endRow) {
+        let endStr = stringSlice(~first=endColumn+1, currLine);
+        let highlightedEndStr = highlightSource(~dim=true, endStr);
+        let beginningStr = stringSlice(~last=startColumn, currLine);
+        let highlightedBeginningStr = red(~bold=true, ~underline=true, beginningStr);
+        let highlighted = highlightedBeginningStr ++ highlightedEndStr;
         revResult.contents = [
-          pad(string_of_int(i + 1), lineNumWidth)
-          ++ sep
-          ++ highlight(~underline=true, ~bold=true, ~color, ~last=endColumn, currLine),
-          ...revResult.contents
-        ]
+          red(~dim=true, pad(string_of_int(i + 1), lineNumWidth) ++ sep) ++ highlighted,
+          ...revResult.contents,
+        ];
       } else {
+        /* In the middle of the error. */
         revResult.contents = [
-          pad(string_of_int(i + 1), lineNumWidth)
-          ++ sep
-          ++ highlight(~underline=true, ~bold=true, ~color, currLine),
-          ...revResult.contents
-        ]
-      }
+          red(~dim=true, pad(string_of_int(i + 1), lineNumWidth) ++ sep)
+          ++ red(~bold=true, ~underline=true, currLine),
+          ...revResult.contents,
+        ];
+      };
     } else {
       revResult.contents = [
-        pad(string_of_int(i + 1), lineNumWidth) ++ sep ++ currLine,
-        ...revResult.contents
-      ]
-    }
+        dim(pad(string_of_int(i + 1), lineNumWidth) ++ sep) ++ highlightSource(~dim=true, currLine),
+        ...revResult.contents,
+      ];
+    };
   };
-  revResult.contents
+  revResult.contents;
 };
 
 let printFile = (~isWarningWithCode=?, {cachedContent, filePath, range}) => {
   let ((startRow, startColumn), (endRow, endColumn)) = range;
   let (isWarning, labelColor, label, warningCodeStr) =
-    switch isWarningWithCode {
-    | None => (false, red, "Error", "")
-    | Some(i) => (true, yellow, "Warning", " [Warning Code " ++ string_of_int(i) ++ "] ")
+    switch (isWarningWithCode) {
+    | None => (false, red, " ERROR ", "")
+    | Some(i) => (
+        true,
+        yellow,
+        " WARNING ",
+        " [Warning Code " ++ string_of_int(i) ++ "] ",
+      )
     };
   let titleLine =
     if (startRow === endRow) {
       sp(
-        "%s %s %s",
-        labelColor(~bold=true, label ++ ":"),
-        cyan(~underline=true, sp("%s:%d %d-%d", filePath, startRow + 1, startColumn, endColumn)),
-        labelColor(~bold=true, warningCodeStr)
-      )
-    } else {
-      sp(
-        "%s %s %s",
-        labelColor(~bold=true, label ++ ":"),
+        "%s %s%s %s",
+        labelColor(~invert=true, ~bold=true, label),
         cyan(
           ~underline=true,
-          sp("%s:%d:%d-%d:%d", filePath, startRow + 1, startColumn, endRow + 1, endColumn)
+          sp("%s", filePath),
         ),
-        labelColor(~bold=true, warningCodeStr)
-      )
+        highlight(~dim=true, ~underline=true, sp(":%d %d-%d", startRow + 1, startColumn, endColumn)),
+        labelColor(~bold=true, warningCodeStr),
+      );
+    } else {
+      sp(
+        "%s %s%s %s",
+        labelColor(~invert=true, ~bold=true, label),
+        cyan(
+          ~underline=true,
+          filePath
+        ),
+        highlight(
+          ~dim=true,
+          ~underline=true,
+          sp(
+            ":%d:%d-%d:%d",
+            startRow + 1,
+            startColumn,
+            endRow + 1,
+            endColumn,
+          ),
+        ),
+        labelColor(~bold=true, warningCodeStr),
+      );
     };
-  _printFile(~titleLine, ~highlightColor=isWarning ? yellow : red, ~highlight=range, cachedContent)
+  _printFile(
+    ~titleLine,
+    ~highlightColor=isWarning ? yellow : red,
+    ~highlight=range,
+    cachedContent,
+  );
 };
 
 /**
@@ -149,13 +235,13 @@ let processLogOutput = (~customLogOutputProcessors, str) =>
   List.fold_left(
     (strSoFar, nextProcessor) => nextProcessor(strSoFar),
     str,
-    customLogOutputProcessors
+    customLogOutputProcessors,
   );
 
 let prettyPrintParsedResult =
     (~originalRevLines: list(string), ~refmttypePath, result: result)
     : list(string) =>
-  switch result {
+  switch (result) {
   | Unparsable => originalRevLines
   /* output the line without any decoration around. We previously had some
      cute little ascii red x mark to say "we couldn't parse this but there's
@@ -170,16 +256,16 @@ let prettyPrintParsedResult =
     originalRevLines
   | ErrorFile(Stdin(original)) => [
       sp("%s (from stdin - see message above)", red(~bold=true, "Error:")),
-      original
+      original,
     ]
   | ErrorFile(CommandLine(moduleName)) => [
       "",
       sp(
         "%s module %s not found.",
         red(~bold=true, "Error:"),
-        red(~underline=true, ~bold=true, moduleName)
+        red(~underline=true, ~bold=true, moduleName),
       ),
-      ...originalRevLines
+      ...originalRevLines,
     ]
   | ErrorFile(NoneFile(filename)) =>
     /* TODO: test case for this. Forgot how to repro it */
@@ -189,15 +275,19 @@ let prettyPrintParsedResult =
         sp(
           "%s Cannot find file %s.",
           red(~bold=true, "Error:"),
-          red(~bold=true, ~underline=true, filename)
+          red(~bold=true, ~underline=true, filename),
         ),
-        ...originalRevLines
-      ]
+        ...originalRevLines,
+      ];
     } else {
       [
-        sp("%s Cannot find file %s.", red(~bold=true, "Error:"), red(~bold=true, filename)),
-        ...originalRevLines
-      ]
+        sp(
+          "%s Cannot find file %s.",
+          red(~bold=true, "Error:"),
+          red(~bold=true, filename),
+        ),
+        ...originalRevLines,
+      ];
     }
   | ErrorContent(withFileInfo) =>
     List.concat([
@@ -206,8 +296,9 @@ let prettyPrintParsedResult =
       [""],
       printFile(withFileInfo),
       [""],
-      indent("  > ", originalRevLines),
-      [sp("  > %s", underline("Unformatted Error Output:"))]
+      [""],
+      indent(dim("# "), List.map(dim, originalRevLines)),
+      [highlight(~dim=true, ~bold=true, "# Unformatted Error Output:")],
     ])
   | Warning(withFileInfo) =>
     List.concat([
@@ -216,12 +307,16 @@ let prettyPrintParsedResult =
         ~refmttypePath,
         withFileInfo.parsedContent.code,
         withFileInfo.filePath,
-        withFileInfo.parsedContent.warningType
+        withFileInfo.parsedContent.warningType,
       ),
       [""],
-      printFile(~isWarningWithCode=withFileInfo.parsedContent.code, withFileInfo),
+      printFile(
+        ~isWarningWithCode=withFileInfo.parsedContent.code,
+        withFileInfo,
+      ),
       [""],
-      indent("  > ", originalRevLines),
-      [sp("  > %s", underline("Unformatted Warning Output:"))]
+      [""],
+      indent(dim("# "), List.map(dim, originalRevLines)),
+      [highlight(~dim=true, ~bold=true, "# Unformatted Warning Output:")],
     ])
   };

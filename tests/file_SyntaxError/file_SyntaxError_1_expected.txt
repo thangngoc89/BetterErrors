@@ -1,10 +1,11 @@
-  > [4mUnformatted Error Output:[0m
-  > File "tests/file_SyntaxError/file_SyntaxError_1.ml", line 2, characters 11-17:
-  > Error: Syntax error
+[2m[1m[39m# Unformatted Error Output:[0m
+[2m# [0m[2mFile "tests/file_SyntaxError/file_SyntaxError_1.ml", line 2, characters 11-17:[0m
+[2m# [0m[2mError: Syntax error[0m
 
-[1m[31mError:[0m [4m[36mtests/file_SyntaxError/file_SyntaxError_1.ml:2 11-17[0m [1m[31m[0m
-1 ¦ let () =
-2 ¦   I'm glad [4m[1m[31myou're[0m looking at this file =)
+[7m[1m[31m ERROR [0m [4m[36mtests/file_SyntaxError/file_SyntaxError_1.ml[0m[4m[2m[39m:2 11-17[0m [1m[31m[0m
+
+[2m1 ┆ [0m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m () =[0m[0m[0m
+[2m2 ┆ [0m[2m[39m[2m[39m[2m[39m  I'm glad [0m[0m[0m[4m[1m[31myou're[0m[2m[39m[2m[39m[2m[39m looking at this file =)[0m[0m[0m
 
 This is a syntax error.
 

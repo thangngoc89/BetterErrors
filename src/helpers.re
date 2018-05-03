@@ -182,6 +182,11 @@ let split = (sep, str) => {
   Re_pcre.split(~rex, str)
 };
 
+let sub = (sep, cb, str) => {
+  let rex = Re_pcre.regexp(sep);
+  Re_pcre.substitute(~rex, ~subst=cb, str);
+};
+
 let rec splitInto = (~chunckSize, l: list('a)) : list(list('a)) =>
   if (List.length(l) <= chunckSize || chunckSize == 0) {
     [l]
@@ -211,6 +216,8 @@ let redCode = "\027[31m";
 
 let yellowCode = "\027[33m";
 
+let blueCode = "\027[34m";
+
 let greenCode = "\027[32m";
 
 let purpleCode = "\027[35m";
@@ -227,6 +234,9 @@ let red = (~underline=false, ~invert=false, ~dim=false, ~bold=false, s) =>
 
 let yellow = (~underline=false, ~invert=false, ~dim=false, ~bold=false, s) =>
   underlineCode(underline) ++  invertCode(invert) ++ dimCode(dim) ++ boldCode(bold) ++ yellowCode ++ s ++ resetANSI;
+
+let blue = (~underline=false, ~invert=false, ~dim=false, ~bold=false, s) =>
+  underlineCode(underline) ++  invertCode(invert) ++ dimCode(dim) ++ boldCode(bold) ++ blueCode ++ s ++ resetANSI;
 
 let green = (~underline=false, ~invert=false, ~dim=false, ~bold=false, s) =>
   underlineCode(underline) ++  invertCode(invert) ++ dimCode(dim) ++ boldCode(bold) ++ greenCode ++ s ++ resetANSI;

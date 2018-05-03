@@ -1,11 +1,13 @@
-  > [4mUnformatted Error Output:[0m
-  > File "tests/type_UnboundValue/type_UnboundValue_3.ml", line 3, characters 16-17:
-  > Error: Unbound value a
+[2m[1m[39m# Unformatted Error Output:[0m
+[2m# [0m[2mFile "tests/type_UnboundValue/type_UnboundValue_3.ml", line 3, characters 16-17:[0m
+[2m# [0m[2mError: Unbound value a[0m
 
-[1m[31mError:[0m [4m[36mtests/type_UnboundValue/type_UnboundValue_3.ml:3 16-17[0m [1m[31m[0m
-1 ¦ let f ~a b = 5 + a
-2 ¦ 
-3 ¦ let eleven = f ~[4m[1m[31ma[0m 6
+
+[7m[1m[31m ERROR [0m [4m[34mtests/type_UnboundValue/type_UnboundValue_3.ml[0m[4m[2m[39m:3 16-17[0m [1m[31m[0m
+
+[2m1 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m f ~a b = [0m[2m[36m5[0m[2m[39m[0m[2m[31m + [0m[2m[39ma[0m[0m[0m[0m[0m
+[2m2 ┆ [0m
+[2m[31m3 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mlet[0m[2m[39m eleven = f ~[0m[0m[0m[0m[0m[4m[31ma[0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m [0m[2m[36m6[0m[2m[39m[0m[0m[0m[0m[0m
 
 The value named [1m[31ma[0m can't be found. Could it be a typo?
 

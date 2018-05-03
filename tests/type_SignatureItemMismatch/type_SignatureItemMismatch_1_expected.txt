@@ -1,26 +1,26 @@
-  > [4mUnformatted Error Output:[0m
-  > File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml", line 6, characters 24-62:
-  > Error: Signature mismatch:
-  >        Modules do not match:
-  >          sig val createElement2 : 'a -> unit end
-  >        is not included in
-  >          Sig
-  >        The value `createElement' is required but not provided
-  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml", line 3, characters 2-35:
-  >          Expected declaration
+[2m[1m[39m# Unformatted Error Output:[0m
+[2m# [0m[2mFile "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml", line 6, characters 24-62:[0m
+[2m# [0m[2mError: Signature mismatch:[0m
+[2m# [0m[2m       Modules do not match:[0m
+[2m# [0m[2m         sig val createElement2 : 'a -> unit end[0m
+[2m# [0m[2m       is not included in[0m
+[2m# [0m[2m         Sig[0m
+[2m# [0m[2m       The value `createElement' is required but not provided[0m
+[2m# [0m[2m       File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml", line 3, characters 2-35:[0m
+[2m# [0m[2m         Expected declaration[0m
 
-[1m[31mError:[0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml:6:24-8:3[0m [1m[31m[0m
-3 ¦   val createElement: string -> unit
-4 ¦ end
-5 ¦ 
-6 ¦ module MyModule : Sig = [4m[1m[31mstruct[0m
-7 ¦ [4m[1m[31m  let createElement2 s = ()[0m
-8 ¦ [4m[1m[31mend[0m
+[7m[1m[31m ERROR [0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml[0m[4m[2m[39m:6:24-8:3[0m [1m[31m[0m
+
+[2m3 ┆ [0m[2m[39m[2m[39m[2m[39m  val createElement: [0m[2m[33mstring[0m[2m[39m -> unit[0m[0m[0m
+[2m4 ┆ [0m[2m[39m[2m[39m[2m[39mend[0m[0m[0m
+[2m5 ┆ [0m
+[2m6 ┆ [0m[2m[39m[2m[39m[2m[35mmodule[0m[2m[39m MyModule : Sig = [0m[0m[0m[4m[1m[31mstruct[0m
+[2m7 ┆ [0m[4m[1m[31m  let createElement2 s = ()[0m
+[2m8 ┆ [0m[4m[1m[31mend[0m[2m[39m[0m
 
 [1mThis module is missing the value named[0m [1m[31mcreateElement[0m
 
-  [1mcreateElement[0m must be included because the module's signature says it is required here:
-
+  [1mcreateElement[0m must be included. The signature says this is a requirement here:
   [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml[0m[2m:3[0m
 
 
