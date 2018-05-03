@@ -6,30 +6,30 @@
 let folders = [
   /* (directory, number of tests) */
   /* first one is special. See the actual tests loop below */
-  ("specialTests", 4, []),
+  ("specialTests", 4, [], []),
   /* `textTests` are simply recorded raw texts ran through berror. */
-  ("textTests", 1, []),
-  ("noError", 1, []),
-  ("prettyPrint", 2, []),
-  ("1_bad_file_name", 1, []),
-  ("bad-file-name-2", 1, []),
-  ("file_IllegalCharacter", 1, []),
-  ("file_SyntaxError", 6, []),
-  ("type_AppliedTooMany", 3, []),
-  ("type_SignatureItemMismatch", 12, [11, 12]),
-  ("type_AppliedWithoutLabel", 1, []),
-  ("type_IncompatibleType", 7, []),
-  ("type_MismatchTypeArguments", 1, []),
-  ("type_NotAFunction", 1, []),
-  ("type_RecordFieldNotBelong", 2, []),
-  ("type_RecordFieldsUndefined", 1, []),
-  ("type_UnboundModule", 2, []),
-  ("type_UnboundRecordField", 2, []),
-  ("type_UnboundTypeConstructor", 2, []),
-  ("type_UnboundValue", 4, []),
-  ("warning_OptionalArgumentNotErased", 2, []),
-  ("warning_PatternNotExhaustive", 2, []),
-  ("warning_PatternUnused", 1, []),
+  ("textTests", 1, [], []),
+  ("noError", 1, [], []),
+  ("prettyPrint", 2, [], []),
+  ("1_bad_file_name", 1, [], []),
+  ("bad-file-name-2", 1, [], []),
+  ("file_IllegalCharacter", 1, [], []),
+  ("file_SyntaxError", 7, [], [7]),
+  ("type_AppliedTooMany", 3, [], []),
+  ("type_SignatureItemMismatch", 12, [11, 12], []),
+  ("type_AppliedWithoutLabel", 1, [], []),
+  ("type_IncompatibleType", 7, [], []),
+  ("type_MismatchTypeArguments", 1, [], []),
+  ("type_NotAFunction", 1, [], []),
+  ("type_RecordFieldNotBelong", 2, [], []),
+  ("type_RecordFieldsUndefined", 1, [], []),
+  ("type_UnboundModule", 2, [], []),
+  ("type_UnboundRecordField", 2, [], []),
+  ("type_UnboundTypeConstructor", 2, [], []),
+  ("type_UnboundValue", 4, [], []),
+  ("warning_OptionalArgumentNotErased", 2, [], []),
+  ("warning_PatternNotExhaustive", 2, [], []),
+  ("warning_PatternUnused", 1, [], []),
 ];
 
 exception Not_equal(string);
@@ -60,17 +60,20 @@ let specialTestsCommands = [
   "echo \"let a:string = 1\" | utop -stdin",
 ];
 
-let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces)) =>
+let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces, indicesWithReason)) =>
   for (j in 1 to fileCount) {
     let testsDirname = Filename.concat("tests", dirname);
     /* text test */
+    let isReason = List.exists(q => q == j, indicesWithReason);
     let filename =
       i === 1 ?
         Filename.concat(
           testsDirname,
           Printf.sprintf("%s_%d.txt", dirname, j),
         ) :
-        Filename.concat(testsDirname, Printf.sprintf("%s_%d.ml", dirname, j));
+        Filename.concat(testsDirname, isReason ?
+          Printf.sprintf("%s_%d.re", dirname, j) :
+          Printf.sprintf("%s_%d.ml", dirname, j));
     let interfaceFilename =
       i === 1 ?
         Filename.concat(
@@ -98,7 +101,11 @@ let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces)) =>
         if ((List.exists(q => q == j, indicesWithInterfaces))) {
           "ocamlc -w +40 " ++ interfaceFilename ++ " &&  ocamlc -I " ++ Filename.dirname(filename) ++ " -w +40 " ++ filename;
         } else {
-          "ocamlc -w +40 " ++ filename;
+          if (isReason) {
+            "ocamlc -pp refmt -w +40 -impl " ++ filename;
+          } else {
+            "ocamlc -w +40 " ++ filename;
+          }
         }
       };
     /* expecting compiling errors in stderr; pipe to a file */

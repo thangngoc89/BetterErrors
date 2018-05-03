@@ -352,8 +352,10 @@ let type_UnboundModule = (err, _, _) => {
 /* need: way, way more information, I can't even */
 let file_SyntaxError = (err, cachedContent, range) => {
   let allR = Re_pcre.regexp({|Syntax error|});
+  let allUnknownR = Re_pcre.regexp({|<UNKNOWN SYNTAX ERROR>|});
   /* raise the same error than if we failed to match */
-  if (! Re_pcre.pmatch(~rex=allR, err)) {
+  if (! Re_pcre.pmatch(~rex=allR, err)
+      && ! Re_pcre.pmatch(~rex=allUnknownR, err)) {
     raise(Not_found);
   } else {
     let hintR = {|Syntax error:([\s\S]+)|};

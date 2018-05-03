@@ -34,14 +34,14 @@
   the signatures says that [1mhasWrongType[0m should have type:
 
   [1m[32mhasWrongType:[0m
-  [1m[32m'a => int[0m
+[1m[32m  'a => int[0m
 
 
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml[0m[2m:8[0m
   your module's [1mhasWrongType[0m has type:
 
   [1m[31mhasWrongType:[0m
-  [1m[31mstring => unit[0m
+[1m[31m  string => unit[0m
 
 
 
