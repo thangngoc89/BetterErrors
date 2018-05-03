@@ -18,12 +18,12 @@
 
 [1mThis module is missing the type named[0m [1m[31mwrongArity[0m
 
-  The signature says that [1mwrongArity[0m is a required here:
+  The following signature requires that [1mwrongArity[0m be defined:
   [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_12.mli[0m[2m:2[0m
 
 [1mThis module is missing the type named[0m [1m[31mwrongType[0m
 
-  The signature says that [1mwrongType[0m is a required here:
+  The following signature requires that [1mwrongType[0m be defined:
   [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_12.mli[0m[2m:3[0m
 
 

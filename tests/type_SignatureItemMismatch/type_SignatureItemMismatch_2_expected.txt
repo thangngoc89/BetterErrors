@@ -24,12 +24,12 @@
 
 [1mThis module is missing the value named[0m [1m[31mcreateElement[0m
 
-  The signature says that [1mcreateElement[0m is a required here:
+  The following signature requires that [1mcreateElement[0m be defined:
   [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_2.ml[0m[2m:4[0m
 
 [1mThis module is missing the value named[0m [1m[31mcreateElement2[0m
 
-  The signature says that [1mcreateElement2[0m is a required here:
+  The following signature requires that [1mcreateElement2[0m be defined:
   [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_2.ml[0m[2m:5[0m
 
 

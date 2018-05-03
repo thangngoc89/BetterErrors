@@ -22,7 +22,7 @@
 
 [1mThis module is missing the type named[0m [1m[31mmissingType[0m
 
-  The signature says that [1mmissingType[0m is a required here:
+  The following signature requires that [1mmissingType[0m be defined:
   [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_7.ml[0m[2m:4[0m
 
 

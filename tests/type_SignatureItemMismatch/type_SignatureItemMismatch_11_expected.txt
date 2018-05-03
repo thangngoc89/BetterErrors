@@ -22,13 +22,13 @@
 [1mThis module contains a type definition with the wrong number of type parameters [0m
 
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_11.mli[0m[2m:1[0m
-  the signature says that the type definition must be:
+  the signature required that the type be defined as:
 
   [1m[32mtype wrongArity = float;[0m
 
 
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_11.ml[0m[2m:2[0m
-  your module defines the type to be:
+  your module defined the type to be:
 
   [1m[31mtype wrongArity('a) = int;[0m
 

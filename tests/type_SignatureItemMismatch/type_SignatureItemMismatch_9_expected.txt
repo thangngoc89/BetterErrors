@@ -28,13 +28,13 @@
 [1mThis module contains a type definition that contradicts its signature[0m
 
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_9.ml[0m[2m:3[0m
-  the signature says that the type definition must be:
+  the signature required that the type be defined as:
 
   [1m[32mtype wrongType = float;[0m
 
 
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_9.ml[0m[2m:7[0m
-  your module defines the type to be:
+  your module defined the type to be:
 
   [1m[31mtype wrongType = int;[0m
 
