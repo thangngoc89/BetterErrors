@@ -143,7 +143,7 @@ let fallbackSignatureMismatch =
   });
 
 let type_SignatureItemMismatch = (err, cachedContent, _) => {
-  let sigMismatchR = {|Signature mismatch:([\s\S]*)|};
+  let sigMismatchR = {|(Signature mismatch:([\s\S]*)|The implementation[\s\S]*does not match the interface([\s\S]*))|};
   let rest = get_match(sigMismatchR, err);
   let missingItemsR = {|[\s\S]*?(The [a-zA-Z]+ `[a-z_][a-zA-Z0-9_\$\']+' is required but not provided[\s\S]*)|};
   let missingItemsMatch = get_match_maybe(missingItemsR, rest);
