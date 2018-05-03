@@ -181,10 +181,10 @@ let type_SignatureItemMismatch = (err, cachedContent, _) => {
       missing: List.rev(missing.contents),
     });
   | (None, Some(_), None) =>
-    let goodName = get_match_n_maybe(1, wrongValR, rest);
-    let good = get_match_n_maybe(2, wrongValR, rest);
-    let badName = get_match_n_maybe(3, wrongValR, rest);
-    let bad = get_match_n_maybe(4, wrongValR, rest);
+    let badName = get_match_n_maybe(1, wrongValR, rest);
+    let bad = get_match_n_maybe(2, wrongValR, rest);
+    let goodName = get_match_n_maybe(3, wrongValR, rest);
+    let good = get_match_n_maybe(4, wrongValR, rest);
     let goodFile = get_match_n_maybe(5, wrongValR, rest);
     let goodLn = get_match_n_maybe(6, wrongValR, rest);
     let badFile = get_match_n_maybe(7, wrongValR, rest);
@@ -221,8 +221,8 @@ let type_SignatureItemMismatch = (err, cachedContent, _) => {
     | _ => fallbackSignatureMismatch
     };
   | (None, None, Some(_)) =>
-    let good = get_match_n_maybe(1, wrongTypeR, rest);
-    let bad = get_match_n_maybe(2, wrongTypeR, rest);
+    let bad = get_match_n_maybe(1, wrongTypeR, rest);
+    let good = get_match_n_maybe(2, wrongTypeR, rest);
     let goodFile = get_match_n_maybe(3, wrongTypeR, rest);
     let goodLn = get_match_n_maybe(4, wrongTypeR, rest);
     let badFile = get_match_n_maybe(5, wrongTypeR, rest);

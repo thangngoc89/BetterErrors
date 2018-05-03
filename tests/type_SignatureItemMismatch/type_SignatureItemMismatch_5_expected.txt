@@ -33,19 +33,19 @@
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_5.ml[0m[2m:3[0m
   the signature required that [1mhasWrongType[0m be of type:
 
-[1m[32m  'a => int[0m
-
-
-  At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_5.ml[0m[2m:7[0m
-  your module defined [1mhasWrongType[0m having type:
-
-[1m[31m  (
+[1m[32m  (
     ~stringParam: string,
     ~intParam: int,
     ~unitParam: unit,
     ~anotherStringParam: string
   ) =>
   unit[0m
+
+
+  At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_5.ml[0m[2m:7[0m
+  your module defined [1mhasWrongType[0m having type:
+
+[1m[31m  'a => int[0m
 
 
 

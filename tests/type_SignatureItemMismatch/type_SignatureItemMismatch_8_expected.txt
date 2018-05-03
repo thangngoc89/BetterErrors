@@ -31,13 +31,13 @@
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_8.ml[0m[2m:3[0m
   the signature required that the type be defined as:
 
-  [1m[32mtype wrongArity = int;[0m
+  [1m[32mtype wrongArity('a);[0m
 
 
   At [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_8.ml[0m[2m:7[0m
   your module defined the type to be:
 
-  [1m[31mtype wrongArity('a);[0m
+  [1m[31mtype wrongArity = int;[0m
 
 
 
