@@ -1,0 +1,46 @@
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml", line 7, characters 24-91:
+  > Error: Signature mismatch:
+  >        Modules do not match:
+  >          sig
+  >            val hasWrongType : 'a -> int
+  >            val hasWrongType2 : 'a -> string
+  >          end
+  >        is not included in
+  >          Sig
+  >        Values do not match:
+  >          val hasWrongType : 'a -> int
+  >        is not included in
+  >          val hasWrongType : string -> unit
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml", line 3, characters 2-34:
+  >          Expected declaration
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml", line 8, characters 6-18:
+  >          Actual declaration
+
+[1m[31mError:[0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml:7:24-10:3[0m [1m[31m[0m
+ 4 ¦   val hasWrongType2: string -> unit
+ 5 ¦ end
+ 6 ¦ 
+ 7 ¦ module MyModule : Sig = [4m[1m[31mstruct[0m
+ 8 ¦ [4m[1m[31m  let hasWrongType s = 0[0m
+ 9 ¦ [4m[1m[31m  let hasWrongType2 s = "wrong"[0m
+10 ¦ [4m[1m[31mend[0m
+
+[1mThis module doesn't match its signature because the[0m [1mvalue[0m [1m[31mhasWrongType[0m [1mhas the wrong type[0m
+
+  [2m[36mAt[0m [2m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml[0m[2m:3[0m
+  The signatures says that [1mhasWrongType[0m should have type:
+
+  [1m[32mhasWrongType:[0m
+  [1m[32m'a => int[0m
+
+
+  [2m[36mAt[0m [2m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml[0m[2m:8[0m
+  But your module's [1mhasWrongType[0m has type:
+
+  [1m[31mhasWrongType:[0m
+  [1m[31mstring => unit[0m
+
+
+
+

@@ -16,6 +16,7 @@ let folders = [
   ("file_IllegalCharacter", 1),
   ("file_SyntaxError", 6),
   ("type_AppliedTooMany", 3),
+  ("type_SignatureItemMismatch", 10),
   ("type_AppliedWithoutLabel", 1),
   ("type_IncompatibleType", 7),
   ("type_MismatchTypeArguments", 1),
@@ -62,6 +63,7 @@ let specialTestsCommands = [
 let forEachTest = (i, (dirname, fileCount)) =>
   for (j in 1 to fileCount) {
     let testsDirname = Filename.concat("tests", dirname);
+    /* text test */
     let filename =
       i === 1 ?
         Filename.concat(

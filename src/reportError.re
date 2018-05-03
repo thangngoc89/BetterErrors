@@ -279,6 +279,148 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
         main,
       ]
     };
+  | Type_SignatureItemMismatch({missing, values, types, notes: _}) =>
+    let finalMessage =
+      switch (missing, values, types) {
+      | ([], [], []) => "This module doesn't match its signature. See the original error output"
+      | ([hd, ...tl], _, _) =>
+        String.concat(
+          "\n",
+          [
+            "",
+            sp(
+              "%s %s",
+              purple(~bold=true, "Learn:"),
+              "\"Signatures\" are interfaces that modules may implement.",
+            ),
+            "  You can indicate that a Reason file (.re) implements a signature by",
+            "  creating an \"interface file\" (.rei) of the same name.",
+            "  Modules nested inside of a Reason file may also opt into being checked",
+            "  against any signature using the type constraint syntax `module M : Sig = ...`",
+          ],
+        )
+      | _ => ""
+      };
+    let whatStr = (
+      fun
+      | Type => "type"
+      | Value => "value"
+    );
+    let missingMsg = ((what, named, declaredAtFile, declaredAtLine)) =>
+      String.concat(
+        "\n",
+        [
+          sp(
+            "%s %s",
+            bold("This module is missing the " ++ whatStr(what) ++ " named"),
+            red(~bold=true, named),
+          ),
+          "",
+          sp(
+            "  %s must be included because the module's signature says it is required here:",
+            bold(named),
+          ),
+          "",
+          sp("  %s%s", cyan(declaredAtFile), dim(":" ++ declaredAtLine)),
+          "",
+        ],
+      );
+    let badValueMsg = info => {
+      let (what, named, good, goodFile, goodLn, badName, bad, badFile, badLn) = info;
+      let (bad, good) =
+        switch (formatOutputSyntax([bad, good])) {
+        | [a, b] => (a, b)
+        | _ => (bad, good)
+        };
+      String.concat(
+        "\n",
+        [
+          sp(
+            "%s %s %s %s",
+            bold("This module doesn't match its signature because the"),
+            bold(whatStr(what)),
+            red(~bold=true, named),
+            bold("has the wrong type"),
+          ),
+          "",
+          sp(
+            "  %s %s%s",
+            cyan(~dim=true, "At"),
+            cyan(~dim=true, goodFile),
+            dim(":" ++ goodLn),
+          ),
+          sp("  The signatures says that %s should have type:", bold(named)),
+          "",
+          "  " ++ highlight(~bold=true, ~color=green, named ++ ":"),
+          "  " ++ highlight(~bold=true, ~color=green, good),
+          "",
+          "",
+          sp(
+            "  %s %s%s",
+            cyan(~dim=true, "At"),
+            cyan(~dim=true, badFile),
+            dim(":" ++ badLn),
+          ),
+          sp("  But your module's %s has type:", bold(named)),
+          "",
+          "  " ++ highlight(~bold=true, ~color=red, named ++ ":"),
+          "  " ++ highlight(~bold=true, ~color=red, bad),
+          "",
+        ],
+      );
+    };
+    let badTypeMsg = info => {
+      let (good, goodFile, goodLn, bad, badFile, badLn, arity) = info;
+      let (bad, good) =
+        switch (formatOutputSyntax([bad, good])) {
+        | [a, b] => (a, b)
+        | _ => (bad, good)
+        };
+      String.concat(
+        "\n",
+        [
+          arity ?
+            bold(
+              "This module contains a type definition with the wrong number of type parameters ",
+            ) :
+            bold(
+              "This module contains a type definition that contradicts its signature",
+            ),
+          "",
+          sp(
+            "  %s %s%s",
+            cyan(~dim=true, "At"),
+            cyan(~dim=true, goodFile),
+            dim(":" ++ goodLn),
+          ),
+          "  The signature says that the type definition must be:",
+          "",
+          "  " ++ highlight(~bold=true, ~color=green, good),
+          "",
+          "",
+          sp(
+            "  %s %s%s",
+            cyan(~dim=true, "At"),
+            cyan(~dim=true, badFile),
+            dim(":" ++ badLn),
+          ),
+          "  Your module defines the type to be:",
+          "",
+          "  " ++ highlight(~bold=true, ~color=red, bad),
+          "",
+        ],
+      );
+    };
+    let missingString = List.map(missingMsg, missing);
+    let badValueString = List.map(badValueMsg, values);
+    let badTypeString = List.map(badTypeMsg, types);
+    List.concat([
+      [finalMessage],
+      missingString,
+      badValueString,
+      badTypeString,
+    ]);
   | _ => ["Error beautifier not implemented for this."]
   };
 };
+/* DesignGuide.show(); */

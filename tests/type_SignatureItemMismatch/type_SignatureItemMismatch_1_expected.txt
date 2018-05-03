@@ -1,0 +1,33 @@
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml", line 6, characters 24-62:
+  > Error: Signature mismatch:
+  >        Modules do not match:
+  >          sig val createElement2 : 'a -> unit end
+  >        is not included in
+  >          Sig
+  >        The value `createElement' is required but not provided
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml", line 3, characters 2-35:
+  >          Expected declaration
+
+[1m[31mError:[0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml:6:24-8:3[0m [1m[31m[0m
+3 ¦   val createElement: string -> unit
+4 ¦ end
+5 ¦ 
+6 ¦ module MyModule : Sig = [4m[1m[31mstruct[0m
+7 ¦ [4m[1m[31m  let createElement2 s = ()[0m
+8 ¦ [4m[1m[31mend[0m
+
+[1mThis module is missing the value named[0m [1m[31mcreateElement[0m
+
+  [1mcreateElement[0m must be included because the module's signature says it is required here:
+
+  [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_1.ml[0m[2m:3[0m
+
+
+[1m[35mLearn:[0m "Signatures" are interfaces that modules may implement.
+  You can indicate that a Reason file (.re) implements a signature by
+  creating an "interface file" (.rei) of the same name.
+  Modules nested inside of a Reason file may also opt into being checked
+  against any signature using the type constraint syntax `module M : Sig = ...`
+
+

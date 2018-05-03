@@ -1,0 +1,52 @@
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml", line 9, characters 24-59:
+  > Error: Signature mismatch:
+  >        Modules do not match:
+  >          sig val hasWrongType : 'a -> int end
+  >        is not included in
+  >          Sig
+  >        The value `createElement2' is required but not provided
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml", line 5, characters 2-36:
+  >          Expected declaration
+  >        The type `missingType' is required but not provided
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml", line 4, characters 2-31:
+  >          Expected declaration
+  >        The value `createElement' is required but not provided
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml", line 3, characters 2-35:
+  >          Expected declaration
+
+[1m[31mError:[0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml:9:24-11:3[0m [1m[31m[0m
+ 6 ¦   val hasWrongType: string -> unit
+ 7 ¦ end
+ 8 ¦ 
+ 9 ¦ module MyModule : Sig = [4m[1m[31mstruct[0m
+10 ¦ [4m[1m[31m  let hasWrongType s = 0[0m
+11 ¦ [4m[1m[31mend[0m
+12 ¦ 
+
+[1mThis module is missing the value named[0m [1m[31mcreateElement[0m
+
+  [1mcreateElement[0m must be included because the module's signature says it is required here:
+
+  [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml[0m[2m:3[0m
+
+[1mThis module is missing the type named[0m [1m[31mmissingType[0m
+
+  [1mmissingType[0m must be included because the module's signature says it is required here:
+
+  [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml[0m[2m:4[0m
+
+[1mThis module is missing the value named[0m [1m[31mcreateElement2[0m
+
+  [1mcreateElement2[0m must be included because the module's signature says it is required here:
+
+  [36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_3.ml[0m[2m:5[0m
+
+
+[1m[35mLearn:[0m "Signatures" are interfaces that modules may implement.
+  You can indicate that a Reason file (.re) implements a signature by
+  creating an "interface file" (.rei) of the same name.
+  Modules nested inside of a Reason file may also opt into being checked
+  against any signature using the type constraint syntax `module M : Sig = ...`
+
+

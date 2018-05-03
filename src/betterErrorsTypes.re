@@ -11,16 +11,31 @@ type unboundValue = {
   suggestions: option(list(string)),
 };
 
-type signatureMismatch = {
-  constructor: string,
-  expectedCount: int,
-  observedCount: int,
-};
+type signatureItemWhatsMissing =
+  | Value
+  | Type;
 
-type signatureItemMissing = {
-  constructor: string,
-  expectedCount: int,
-  observedCount: int,
+type signatureItemMismatch = {
+  notes: string,
+  /* (whatsWrong, name, originalFile, lineNumber) */
+  missing: list((signatureItemWhatsMissing, string, string, string)),
+  /* (whatsWrong, goodName, good, goodFile, goodLn, badName, bad, badFile, badLn) */
+  values:
+    list(
+      (
+        signatureItemWhatsMissing,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+      ),
+    ),
+  /* (goodType, goodFile, goodln, badType, badFile, badln, arity) */
+  types: list((string, string, string, string, string, string, bool)),
 };
 
 type unboundModule = {
@@ -135,8 +150,7 @@ type warningType =
 type error =
   | Type_MismatchTypeArguments(mismatchTypeArguments)
   | Type_UnboundValue(unboundValue)
-  | Type_SignatureMismatch(signatureMismatch)
-  | Type_SignatureItemMissing(signatureItemMissing)
+  | Type_SignatureItemMismatch(signatureItemMismatch)
   | Type_UnboundModule(unboundModule)
   | Type_UnboundRecordField(unboundRecordField)
   | Type_UnboundConstructor(unboundConstructor)

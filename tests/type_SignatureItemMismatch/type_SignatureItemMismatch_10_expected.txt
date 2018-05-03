@@ -1,0 +1,42 @@
+  > [4mUnformatted Error Output:[0m
+  > File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_10.ml", line 7, characters 24-85:
+  > Error: Signature mismatch:
+  >        Modules do not match:
+  >          sig type wrongArity = float type wrongType = float end
+  >        is not included in
+  >          Sig
+  >        Type declarations do not match:
+  >          type wrongArity = float
+  >        is not included in
+  >          type 'a wrongArity = int
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_10.ml", line 3, characters 2-26:
+  >          Expected declaration
+  >        File "tests/type_SignatureItemMismatch/type_SignatureItemMismatch_10.ml", line 8, characters 2-25:
+  >          Actual declaration
+  >        They have different arities.
+
+[1m[31mError:[0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_10.ml:7:24-10:3[0m [1m[31m[0m
+ 4 ¦   type wrongType = int
+ 5 ¦ end
+ 6 ¦ 
+ 7 ¦ module MyModule : Sig = [4m[1m[31mstruct[0m
+ 8 ¦ [4m[1m[31m  type wrongArity = float[0m
+ 9 ¦ [4m[1m[31m  type wrongType = float[0m
+10 ¦ [4m[1m[31mend[0m
+
+[1mThis module contains a type definition with the wrong number of type parameters [0m
+
+  [2m[36mAt[0m [2m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_10.ml[0m[2m:3[0m
+  The signature says that the type definition must be:
+
+  [1m[32mtype wrongArity = float;[0m
+
+
+  [2m[36mAt[0m [2m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_10.ml[0m[2m:8[0m
+  Your module defines the type to be:
+
+  [1m[31mtype wrongArity('a) = int;[0m
+
+
+
+
