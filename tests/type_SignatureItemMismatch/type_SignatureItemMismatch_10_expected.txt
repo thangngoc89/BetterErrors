@@ -22,8 +22,8 @@
 [2m 5 ┆ [0m[2m[39mend[0m
 [2m 6 ┆ [0m
 [2m[31m 7 ┆ [0m[2m[35mmodule[0m[2m[39m [0m[2m[34mMyModule[0m[2m[39m : [0m[2m[34mSig[0m[2m[39m = [0m[4m[1m[31mstruct[0m
-[2m[31m 8 ┆ [0m[4m[1m[31m  type wrongArity = float[0m
-[2m[31m 9 ┆ [0m[4m[1m[31m  type wrongType = float[0m
+[2m[31m 8 ┆ [0m  [4m[1m[31mtype wrongArity = float[0m
+[2m[31m 9 ┆ [0m  [4m[1m[31mtype wrongType = float[0m
 [2m[31m10 ┆ [0m[4m[1m[31mend[0m
 
 [1mThis module contains a type definition with the wrong number of type parameters [0m

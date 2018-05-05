@@ -22,7 +22,7 @@
 [2m 7 ┆ [0m[2m[39mend[0m
 [2m 8 ┆ [0m
 [2m[31m 9 ┆ [0m[2m[35mmodule[0m[2m[39m [0m[2m[34mMyModule[0m[2m[39m : [0m[2m[34mSig[0m[2m[39m = [0m[4m[1m[31mstruct[0m
-[2m[31m10 ┆ [0m[4m[1m[31m  let hasWrongType s = 0[0m
+[2m[31m10 ┆ [0m  [4m[1m[31mlet hasWrongType s = 0[0m
 [2m[31m11 ┆ [0m[4m[1m[31mend[0m
 [2m12 ┆ [0m
 

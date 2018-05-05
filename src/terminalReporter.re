@@ -12,6 +12,8 @@ let numberOfDigits = n => {
   digits^;
 };
 
+
+
 let pad = (~ch=' ', content, n) =>
   String.make(n - String.length(content), ch) ++ content;
 
@@ -31,14 +33,11 @@ let tokens = [
   /* Named arguments */
   ({|~[a-z][a-zA-Z0-9_']*\b|}, yellow),
   ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
-  ({|\bif\b|\belse\b|\bfor\b|\bwhile\b|\bswitch\b|\bstring\b|\blist\b|}, yellow),
+  ({|\bif\b|\belse\b|\bfor\b|\bfor\b|\bwhile\b|\bswitch\b|\bstring\b|\blist\b|}, yellow),
   ({|\b[0-9]+\b|}, blue),
   ({|\b[A-Z][A-Za-z0-9_]*\b|}, blue),
   ({|\s\+\+\s|\s\+\s|\s\-\s|\s=>\s|\s==\s|}, red),
 ];
-
-
-
 
 let tokenRegex =
   String.concat("|", List.map(((rStr, _)) => "(" ++ rStr ++ ")", tokens));
@@ -150,10 +149,14 @@ let _printFile =
           ...revResult.contents,
         ];
       } else if (i == endRow) {
-        let endStr = stringSlice(~first=endColumn+1, currLine);
+        /* startColumn is garbage for the end row or middle rows! */
+        let endStr = stringSlice(~first=endColumn, currLine);
+        let beginningStr = stringSlice(~last=endColumn, currLine);
+        /* In the middle of the error. */
+        let (white, trimmedBeginningStr) = splitLeadingWhiteSpace(beginningStr);
+        let highlightedBeginningStr =
+          white ++ red(~bold=true, ~underline=true, trimmedBeginningStr);
         let highlightedEndStr = highlightSource(~dim=true, endStr);
-        let beginningStr = stringSlice(~last=startColumn, currLine);
-        let highlightedBeginningStr = red(~bold=true, ~underline=true, beginningStr);
         let highlighted = highlightedBeginningStr ++ highlightedEndStr;
         revResult.contents = [
           red(~dim=true, pad(string_of_int(i + 1), lineNumWidth) ++ sep) ++ highlighted,
@@ -161,9 +164,11 @@ let _printFile =
         ];
       } else {
         /* In the middle of the error. */
+        let (white, trimmed) = splitLeadingWhiteSpace(currLine);
         revResult.contents = [
           red(~dim=true, pad(string_of_int(i + 1), lineNumWidth) ++ sep)
-          ++ red(~bold=true, ~underline=true, currLine),
+          ++ white
+          ++ red(~bold=true, ~underline=true, trimmed),
           ...revResult.contents,
         ];
       };

@@ -21,7 +21,7 @@
 [2m4 ┆ [0m[2m[39mend[0m
 [2m5 ┆ [0m
 [2m[31m6 ┆ [0m[2m[35mmodule[0m[2m[39m [0m[2m[34mMyModule[0m[2m[39m : [0m[2m[34mSig[0m[2m[39m = [0m[4m[1m[31mstruct[0m
-[2m[31m7 ┆ [0m[4m[1m[31m  type wrongType = float[0m
+[2m[31m7 ┆ [0m  [4m[1m[31mtype wrongType = float[0m
 [2m[31m8 ┆ [0m[4m[1m[31mend[0m
 [2m9 ┆ [0m
 

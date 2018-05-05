@@ -60,6 +60,8 @@ let specialTestsCommands = [
   "echo \"let a:string = 1\" | utop -stdin",
 ];
 
+let changeCommands = {contents: []};
+
 let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces, indicesWithReason)) =>
   for (j in 1 to fileCount) {
     let testsDirname = Filename.concat("tests", dirname);
@@ -126,7 +128,33 @@ let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces, indicesWithRea
     /* ignore @@ Sys.command @@ Printf.sprintf("cp %s %s", actualOutputName, expectedOutputName); */
     /* TODO: show the differences */
     if (actual != expected) {
-      print_endline("cp " ++ actualOutputName ++ " " ++ expectedOutputName);
+      print_endline("The test output does not match what was expected.");
+      print_newline();
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
+      print_endline("Actual:" ++ actualOutputName);
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
+      print_endline(actual);
+      print_newline();
+      print_newline();
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
+      print_endline("Expected:" ++ expectedOutputName);
+      print_endline(
+        "----------------------------------------------------------------------",
+      );
+      print_endline(expected);
+      print_newline();
+      print_newline();
+      changeCommands.contents = [
+        "cp " ++ actualOutputName ++ " " ++ expectedOutputName,
+        ...changeCommands.contents
+      ];
+      print_newline();
       /* raise(Not_equal(filename)); */
     };
   };
@@ -134,7 +162,15 @@ let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces, indicesWithRea
 try (
   {
     List.iteri(forEachTest, folders);
-    print_endline("ALL GOOD!");
+
+    if (List.length(changeCommands.contents) > 0) {
+      print_newline();
+      print_endline("To accept the changes run:");
+      print_endline(String.concat("\n", changeCommands.contents));
+    } else {
+      print_newline();
+      print_endline("ALL GOOD!");
+    };
     ignore(Sys.command("rm -rf ./tests/**/*.{cmi,cmo}"));
   }
 ) {
