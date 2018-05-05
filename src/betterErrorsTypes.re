@@ -59,6 +59,17 @@ type argumentCannotBeAppliedWithLabel = {
   attemptedLabel: string,
 };
 
+type labelIssue =
+  | HasOptionalLabel(string)
+  | HasLabel(string)
+  | HasNoLabel
+  | Unknown;
+
+type functionWrongLabel = {
+  functionType: string,
+  labelIssue,
+};
+
 type appliedTooMany = {
   functionType: string,
   expectedArgCount: int,
@@ -156,6 +167,7 @@ type error =
   | Type_UnboundConstructor(unboundConstructor)
   | Type_UnboundTypeConstructor(unboundTypeConstructor)
   | Type_ArgumentCannotBeAppliedWithLabel(argumentCannotBeAppliedWithLabel)
+  | Type_FunctionWrongLabel(functionWrongLabel)
   | Type_AppliedTooMany(appliedTooMany)
   | Type_RecordFieldNotInExpression(recordFieldNotInExpression)
   | Type_RecordFieldNotBelongPattern(recordFieldNotBelong)

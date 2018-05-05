@@ -319,6 +319,32 @@ let type_AppliedTooMany = (err, _, _) => {
   });
 };
 
+let type_FunctionWrongLabel = (err, _, _) => {
+  let functionLabelR = {|This function should have type([\s\S]+)but its first argument is([\s\S]*)|};
+  let functionType = String.trim(get_match_n(1, functionLabelR, err));
+  let labelIssueString = String.trim(get_match_n(2, functionLabelR, err));
+  /**
+   * labelled ?a
+   * labelled ~a
+   * not labelled
+   */
+  let labelledOptionalR = {|labelled \?([a-z][a-zA-Z0-9_]*)|};
+  let labelledR = {|labelled ~([a-z][a-zA-Z0-9_]*)|};
+  let notLabelledR = {|(not labelled)|};
+  let labelIssue =
+    switch (
+      get_match_n_maybe(1, labelledOptionalR, labelIssueString),
+      get_match_n_maybe(1, labelledR, labelIssueString),
+      get_match_n_maybe(1, notLabelledR, labelIssueString),
+    ) {
+    | (Some(lbl), _, _) => HasOptionalLabel(lbl)
+    | (_, Some(lbl), _) => HasLabel(lbl)
+    | (_, _, Some(lbl)) => HasNoLabel
+    | _ => Unknown
+    };
+  Type_FunctionWrongLabel({functionType, labelIssue});
+};
+
 let type_ArgumentCannotBeAppliedWithLabel = (err, cachedContent, range) => {
   let functionTypeR = {|The function applied to this argument has type([\s\S]+)This argument cannot be applied with label|};
   let attemptedLabelR = {|This argument cannot be applied with label ~([a-z_][a-zA-Z0-9_\$]+)|};
@@ -396,6 +422,7 @@ let parsers = [
   type_UnboundConstructor,
   type_UnboundTypeConstructor,
   type_AppliedTooMany,
+  type_FunctionWrongLabel,
   type_ArgumentCannotBeAppliedWithLabel,
   type_RecordFieldNotInExpression,
   type_RecordFieldError,

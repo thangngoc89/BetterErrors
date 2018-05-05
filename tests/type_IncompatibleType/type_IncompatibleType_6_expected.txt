@@ -10,10 +10,10 @@
 [2m2 ┆ [0m
 [2m[31m3 ┆ [0m[2m[35mlet[0m[2m[39m () = ignore (iTakeAFunction [0m[4m[1m[31m"rebel"[0m[2m[39m)[0m
 
-This type doesn't match what is expected.
+[1mThis type doesn't match what is expected.[0m
 
-[1mThis type:[0m [1m[31mstring[0m
-[1mExpecting:[0m [32m(string, 'a) => 'b[0m
+[1m  This type:[0m [1m[31mstring[0m
+[1m  Expecting:[0m [32m(string, 'a) => 'b[0m
 
 
 

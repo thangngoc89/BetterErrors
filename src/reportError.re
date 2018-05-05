@@ -73,17 +73,46 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       | [a, b] => (a, b)
       | _ => (actual, expected)
       };
-    let main = [
-      "",
-      sp("%s %s", bold("Expecting:"), highlight(~color=green, expected)),
-      sp(
-        "%s %s",
-        bold("This type:"),
-        highlight(~color=red, ~bold=true, actual),
-      ),
-      "",
-      "This type doesn't match what is expected.",
-    ];
+    let actualHasBreaks =
+      switch (String.index_from(actual, 0, '\n')) {
+      | exception e => false
+      | _ => true
+      };
+    let expectedHasBreaks =
+      switch (String.index_from(expected, 0, '\n')) {
+      | exception e => false
+      | _ => true
+      };
+    let main =
+      if (actualHasBreaks || expectedHasBreaks) {
+        [
+          "",
+          highlight(~color=green, indentStr("  ", expected)),
+          bold("  Expecting:"),
+          "",
+          "",
+          highlight(~color=red, ~bold=true, indentStr("  ", actual)),
+          bold("  This type:"),
+          "",
+          bold("This type doesn't match what is expected."),
+        ];
+      } else {
+        [
+          "",
+          sp(
+            "%s %s",
+            bold("  Expecting:"),
+            highlight(~color=green, expected),
+          ),
+          sp(
+            "%s %s",
+            bold("  This type:"),
+            highlight(~color=red, ~bold=true, actual),
+          ),
+          "",
+          bold("This type doesn't match what is expected."),
+        ];
+      };
     switch (extra) {
     | Some(e) => ["Extra info: " ++ e, ...main]
     | None => main
@@ -110,6 +139,41 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
         expectedArgCount,
       ),
       sp("This function has type %s", functionType),
+    ];
+  | Type_FunctionWrongLabel({functionType, labelIssue}) =>
+    let functionType =
+      switch (formatOutputSyntax([functionType])) {
+      | [a] => a
+      | _ => functionType
+      };
+    let labelIssueStr =
+      switch (labelIssue) {
+      | HasOptionalLabel(str) =>
+        sp(
+          "%s %s",
+          bold("But its first argument is an optional named"),
+          red(~bold=true, "~" ++ str ++ "?"),
+        )
+      | HasLabel(str) =>
+        sp(
+          "%s %s",
+          bold("But its first argument is named"),
+          red(~bold=true, "~" ++ str),
+        )
+      | HasNoLabel =>
+        sp(
+          "%s %s",
+          bold("But its first argument"),
+          red(~bold=true, "is not named"),
+        )
+      | Unknown =>
+        bold("There appears to be something wrong with the named arguments")
+      };
+    [
+      labelIssueStr,
+      "",
+      highlight(~color=green, functionType),
+      bold("This function should have type:"),
     ];
   | File_SyntaxError({offendingString, hint}) => [
       "Note: the location indicated might not be accurate.",
@@ -342,23 +406,13 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
             bold("has the wrong type"),
           ),
           "",
-          sp(
-            "  %s %s%s",
-            "At",
-            cyan(goodFile),
-            dim(":" ++ goodLn),
-          ),
+          sp("  %s %s%s", "At", cyan(goodFile), dim(":" ++ goodLn)),
           sp("  the signature required that %s be of type:", bold(named)),
           "",
           highlight(~bold=true, ~color=green, indentStr("  ", good)),
           "",
           "",
-          sp(
-            "  %s %s%s",
-            "At",
-            cyan(badFile),
-            dim(":" ++ badLn),
-          ),
+          sp("  %s %s%s", "At", cyan(badFile), dim(":" ++ badLn)),
           sp("  your module defined %s having type:", bold(named)),
           "",
           highlight(~bold=true, ~color=red, indentStr("  ", bad)),
@@ -384,23 +438,13 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
               "This module contains a type definition that contradicts its signature",
             ),
           "",
-          sp(
-            "  %s %s%s",
-            "At",
-            cyan(goodFile),
-            dim(":" ++ goodLn),
-          ),
+          sp("  %s %s%s", "At", cyan(goodFile), dim(":" ++ goodLn)),
           "  the signature required that the type be defined as:",
           "",
           "  " ++ highlight(~bold=true, ~color=green, good),
           "",
           "",
-          sp(
-            "  %s %s%s",
-            "At",
-            cyan(badFile),
-            dim(":" ++ badLn),
-          ),
+          sp("  %s %s%s", "At", cyan(badFile), dim(":" ++ badLn)),
           "  your module defined the type to be:",
           "",
           "  " ++ highlight(~bold=true, ~color=red, bad),

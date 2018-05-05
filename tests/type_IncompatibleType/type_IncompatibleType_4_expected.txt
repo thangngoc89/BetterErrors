@@ -36,10 +36,10 @@
 [2m13 ┆ [0m
 [2m[31m14 ┆ [0m[2m[35mlet[0m[2m[39m asd: [0m[2m[34mTopNotchModule[0m[2m[39m.jeSuisStrings = [0m[4m[1m[31m([[[{nihao = 1}]]]: TopNotchModule.Nested.wow)[0m
 
-This type doesn't match what is expected.
+[1mThis type doesn't match what is expected.[0m
 
-[1mThis type:[0m [1m[31mTopNotchModule.Nested.wow[0m
-[1mExpecting:[0m [32mTopNotchModule.jeSuisStrings[0m
+[1m  This type:[0m [1m[31mTopNotchModule.Nested.wow[0m
+[1m  Expecting:[0m [32mTopNotchModule.jeSuisStrings[0m
 
 Extra info: Type
          TopNotchModule.myRecordListListList =
