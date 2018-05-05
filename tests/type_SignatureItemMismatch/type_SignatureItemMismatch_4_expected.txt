@@ -20,10 +20,10 @@
 
 [7m[1m[31m ERROR [0m [4m[36mtests/type_SignatureItemMismatch/type_SignatureItemMismatch_4.ml[0m[4m[2m[39m:7:24-10:3[0m [1m[31m[0m
 
-[2m 4 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  val hasWrongType2: [0m[2m[33mstring[0m[2m[39m -> unit[0m[0m[0m[0m[0m
-[2m 5 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39mend[0m[0m[0m[0m[0m
+[2m 4 ┆ [0m[2m[39m  val hasWrongType2: [0m[2m[33mstring[0m[2m[39m -> unit[0m
+[2m 5 ┆ [0m[2m[39mend[0m
 [2m 6 ┆ [0m
-[2m[31m 7 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mmodule[0m[2m[39m [0m[2m[34mMyModule[0m[2m[39m : [0m[2m[34mSig[0m[2m[39m = [0m[0m[0m[0m[0m[4m[1m[31mstruct[0m
+[2m[31m 7 ┆ [0m[2m[35mmodule[0m[2m[39m [0m[2m[34mMyModule[0m[2m[39m : [0m[2m[34mSig[0m[2m[39m = [0m[4m[1m[31mstruct[0m
 [2m[31m 8 ┆ [0m[4m[1m[31m  let hasWrongType s = 0[0m
 [2m[31m 9 ┆ [0m[4m[1m[31m  let hasWrongType2 s = "wrong"[0m
 [2m[31m10 ┆ [0m[4m[1m[31mend[0m

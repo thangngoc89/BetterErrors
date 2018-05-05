@@ -5,11 +5,11 @@
 
 [7m[1m[31m ERROR [0m [4m[36mtests/file_SyntaxError/file_SyntaxError_7.re[0m[4m[2m[39m:20 22-23[0m [1m[31m[0m
 
-[2m17 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m    fun[0m[0m[0m[0m[0m
-[2m18 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m    | [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mChanged[0m[2m[39m(s)[0m[2m[31m => [0m[2m[39ms,[0m[0m[0m[0m[0m
-[2m19 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m    [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mOne[0m[2m[39m([0m[2m[34mDom[0m[2m[39m.div(~className=[0m[0m[0m[0m[0m[2m[32m"helloClass"[0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m, [0m[2m[34mEmpty[0m[2m[39m)),[0m[0m[0m[0m[0m
-[2m[31m20 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  ) : [0m[2m[34mReact[0m[2m[39m.elem(tree)[0m[0m[0m[0m[0m[4m[1m[31m;[0m
-[2m21 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m};[0m[0m[0m[0m[0m
+[2m17 ┆ [0m[2m[39m    fun[0m
+[2m18 ┆ [0m[2m[39m    | [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mChanged[0m[2m[39m(s)[0m[2m[31m => [0m[2m[39ms,[0m
+[2m19 ┆ [0m[2m[39m    [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mOne[0m[2m[39m([0m[2m[34mDom[0m[2m[39m.div(~className=[0m[2m[32m"helloClass"[0m[2m[39m, [0m[2m[34mEmpty[0m[2m[39m)),[0m
+[2m[31m20 ┆ [0m[2m[39m  ) : [0m[2m[34mReact[0m[2m[39m.elem(tree)[0m[4m[1m[31m;[0m
+[2m21 ┆ [0m[2m[39m};[0m
 
 This is a syntax error.
 Make sure all imperative statements, as well as let/type bindings have exactly one semicolon separating them.
@@ -23,12 +23,12 @@ Note: the location indicated might not be accurate.
 
 [7m[1m[31m ERROR [0m [4m[36mtests/file_SyntaxError/file_SyntaxError_7.re[0m[4m[2m[39m:1 0-0[0m [1m[31m[0m
 
-[2m[31m 1 ┆ [0m[4m[1m[31m[0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[35mmodule[0m[2m[39m [0m[2m[34mInput[0m[2m[39m: {[0m[0m[0m[0m[0m
-[2m 2 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m  /*[0m[0m[0m[0m[0m
-[2m 3 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m   * [0m[2m[34mComponents[0m[2m[39m that don't accept [0m[2m[34mChildren[0m[2m[39m, would not have parameterized[0m[0m[0m[0m[0m
-[2m 4 ┆ [0m[2m[39m[2m[39m[2m[39m[2m[39m[2m[39m   * `element`. [0m[2m[34mChild[0m[2m[39m-accepting components would.[0m[0m[0m[0m[0m
+[2m[31m 1 ┆ [0m[4m[1m[31m[0m[2m[35mmodule[0m[2m[39m [0m[2m[34mInput[0m[2m[39m: {[0m
+[2m 2 ┆ [0m[2m[39m  /*[0m
+[2m 3 ┆ [0m[2m[39m   * [0m[2m[34mComponents[0m[2m[39m that don't accept [0m[2m[34mChildren[0m[2m[39m, would not have parameterized[0m
+[2m 4 ┆ [0m[2m[39m   * `element`. [0m[2m[34mChild[0m[2m[39m-accepting components would.[0m
 
 
 
-Command line: refmt 'tests/file_SyntaxError/file_SyntaxError_7.re' > /var/folders/p2/pjcpdrc50_j_gcpft3lc21vh0000gn/T/ocamlppb103be
+Command line: refmt 'tests/file_SyntaxError/file_SyntaxError_7.re' > /var/folders/p2/pjcpdrc50_j_gcpft3lc21vh0000gn/T/ocamlppab4729
 

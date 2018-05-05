@@ -28,6 +28,7 @@ let startingSpacesCount = str => {
 };
 
 let tokens = [
+  /* Named arguments */
   ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
   ({|\bif\b|\belse\b|\bfor\b|\bwhile\b|\bswitch\b|\bstring\b|\blist\b|}, yellow),
   ({|\b[0-9]+\b|}, blue),
@@ -35,27 +36,32 @@ let tokens = [
   ({|\s\+\+\s|\s\+\s|\s\-\s|\s=>\s|\s==\s|}, red),
 ];
 
+
+
+
+let tokenRegex =
+  String.concat("|", List.map(((rStr, _)) => "(" ++ rStr ++ ")", tokens));
+
+
 /*
  * This is so much more complicated because highlighting doesn't support
  * nesting right now.
  */
-let rec highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
-  switch tokens {
-    | [] => txt
-    | [(regexStr, color), ...tl] =>
-      let rex = Re_pcre.regexp(regexStr);
-      let splitted = Re_pcre.full_split(~rex, txt);
-      let strings = List.map(
-        fun
-          | Re_pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
-          | Delim(s)
-          | Group(_, s) => highlight(~dim, ~bold, ~underline, ~color, s)
-          | NoGroup => "",
-        splitted
-      );
-      let joined = String.concat("", strings);
-      highlightTokens(~dim, ~bold, ~underline, joined, tl);
-  };
+let highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
+  let rex = Re_pcre.regexp(tokenRegex);
+  let splitted = Re_pcre.full_split(~rex, txt);
+  let strings = List.map(
+    fun
+      | Re_pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
+      | Delim(s) => "" /* Let the Group do the highlighting */
+      | Group(i, s) => {
+        let (r, color) = List.nth(tokens, i - 1);
+        highlight(~dim, ~bold, ~underline, ~color, s)
+      }
+      | NoGroup => "",
+    splitted
+  );
+  String.concat("", strings);
 };
 let highlightSource = (~dim=false, ~underline=false, ~bold=false, txt) => {
   let splitOnQuotes = String.split_on_char('"', txt);
