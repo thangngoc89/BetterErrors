@@ -29,6 +29,7 @@ let startingSpacesCount = str => {
 
 let tokens = [
   /* Named arguments */
+  ({|~[a-z][a-zA-Z0-9_']*\b|}, yellow),
   ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
   ({|\bif\b|\belse\b|\bfor\b|\bwhile\b|\bswitch\b|\bstring\b|\blist\b|}, yellow),
   ({|\b[0-9]+\b|}, blue),

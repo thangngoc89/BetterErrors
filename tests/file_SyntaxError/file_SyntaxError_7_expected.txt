@@ -7,7 +7,7 @@
 
 [2m17 ┆ [0m[2m[39m    fun[0m
 [2m18 ┆ [0m[2m[39m    | [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mChanged[0m[2m[39m(s)[0m[2m[31m => [0m[2m[39ms,[0m
-[2m19 ┆ [0m[2m[39m    [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mOne[0m[2m[39m([0m[2m[34mDom[0m[2m[39m.div(~className=[0m[2m[32m"helloClass"[0m[2m[39m, [0m[2m[34mEmpty[0m[2m[39m)),[0m
+[2m19 ┆ [0m[2m[39m    [0m[2m[34mReact[0m[2m[39m.[0m[2m[34mOne[0m[2m[39m([0m[2m[34mDom[0m[2m[39m.div([0m[2m[33m~className[0m[2m[39m=[0m[2m[32m"helloClass"[0m[2m[39m, [0m[2m[34mEmpty[0m[2m[39m)),[0m
 [2m[31m20 ┆ [0m[2m[39m  ) : [0m[2m[34mReact[0m[2m[39m.elem(tree)[0m[4m[1m[31m;[0m
 [2m21 ┆ [0m[2m[39m};[0m
 
@@ -30,5 +30,5 @@ Note: the location indicated might not be accurate.
 
 
 
-Command line: refmt 'tests/file_SyntaxError/file_SyntaxError_7.re' > /var/folders/p2/pjcpdrc50_j_gcpft3lc21vh0000gn/T/ocamlppab4729
+Command line: refmt 'tests/file_SyntaxError/file_SyntaxError_7.re' > /var/folders/p2/pjcpdrc50_j_gcpft3lc21vh0000gn/T/ocamlppf4b708
 

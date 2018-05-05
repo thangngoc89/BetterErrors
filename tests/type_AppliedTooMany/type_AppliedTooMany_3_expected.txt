@@ -10,10 +10,10 @@
 
 [2m 8 ┆ [0m[2m[35mlet[0m[2m[39m _ =[0m
 [2m 9 ┆ [0m[2m[39m  parseFromStdin[0m
-[2m10 ┆ [0m[2m[39m    ~refmttypePath[0m
+[2m10 ┆ [0m[2m[39m    [0m[2m[33m~refmttypePath[0m
 [2m[31m11 ┆ [0m[2m[39m    ~[0m[4m[1m[31mraiseExceptionDuringParse[0m[2m[39m=true[0m
-[2m12 ┆ [0m[2m[39m    ~customLogOutputProcessors=[][0m
-[2m13 ┆ [0m[2m[39m    ~customErrorParsers:[][0m
+[2m12 ┆ [0m[2m[39m    [0m[2m[33m~customLogOutputProcessors[0m[2m[39m=[][0m
+[2m13 ┆ [0m[2m[39m    [0m[2m[33m~customErrorParsers[0m[2m[39m:[][0m
 
 The function has type (
   ~customLogOutputProcessors: list(string => string),

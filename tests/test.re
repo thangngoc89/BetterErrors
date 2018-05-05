@@ -126,32 +126,7 @@ let forEachTest = (i, (dirname, fileCount, indicesWithInterfaces, indicesWithRea
     /* ignore @@ Sys.command @@ Printf.sprintf("cp %s %s", actualOutputName, expectedOutputName); */
     /* TODO: show the differences */
     if (actual != expected) {
-      print_endline("The test output does not match what was expected.");
-      print_newline();
-      print_endline(
-        "----------------------------------------------------------------------",
-      );
-      print_endline("Actual:" ++ actualOutputName);
-      print_endline(
-        "----------------------------------------------------------------------",
-      );
-      print_endline(actual);
-      print_newline();
-      print_newline();
-      print_endline(
-        "----------------------------------------------------------------------",
-      );
-      print_endline("Expected:" ++ expectedOutputName);
-      print_endline(
-        "----------------------------------------------------------------------",
-      );
-      print_endline(expected);
-      print_newline();
-      print_newline();
-      print_string("To accept the changes run:");
-      print_newline();
-      print_string("cp " ++ actualOutputName ++ " " ++ expectedOutputName);
-      print_newline();
+      print_endline("cp " ++ actualOutputName ++ " " ++ expectedOutputName);
       /* raise(Not_equal(filename)); */
     };
   };
