@@ -7,11 +7,23 @@ let suggestifyList = suggestions =>
 
 let refmttypeNewlineR = Re_pcre.regexp({|\\n|});
 
+/*
+ * Remove GADT cruft etc.
+ */
+let gadtR = Re_pcre.regexp({|\$[a-zA-Z0-9']*|});
+
+let replaceDollar = s =>
+  s.[0] === '$' ?
+    "thereExistsAType_" ++ String.sub(s, 1, String.length(s) - 1) : s;
+
+let normalizeType = s =>
+  Re_pcre.substitute(~rex=gadtR, ~subst=replaceDollar, s);
+
 let toReasonTypes = (~refmttypePath, types) =>
   switch (refmttypePath) {
   | None => types
   | Some(path) =>
-    let types = String.concat("\\\"", types);
+    let types = String.concat("\\\"", List.map(normalizeType, types));
     let cmd = path ++ (sp({| "%s"|}))(types);
     let input = Unix.open_process_in(cmd);
     let result = {contents: []};
