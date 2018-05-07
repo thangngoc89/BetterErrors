@@ -2,31 +2,56 @@ let indent = (prefixStr, lines) => List.map(s => prefixStr ++ s, lines);
 
 let splitLeadingWhiteSpace = s => {
   let index = {contents: 0};
-  let firstNonWhite = {contents: -1};  /* -1 means does not exist. */
+  let firstNonWhite = {contents: (-1)}; /* -1 means does not exist. */
   let len = String.length(s);
   while (index.contents < len) {
     let char = s.[index.contents];
-    if (firstNonWhite.contents === -1) {
+    if (firstNonWhite.contents === (-1)) {
       if (char !== ' ' && char !== '\n' && char !== '\t' && char !== '\r') {
         firstNonWhite.contents = index.contents;
       };
     };
     index.contents = index.contents + 1;
   };
-  if (firstNonWhite.contents === -1) {
+  if (firstNonWhite.contents === (-1)) {
     (s, "");
   } else {
     (
       String.sub(s, 0, firstNonWhite.contents),
-      String.sub(s, firstNonWhite.contents, len - firstNonWhite.contents)
+      String.sub(s, firstNonWhite.contents, len - firstNonWhite.contents),
     );
   };
 };
 
+let doubleUnder = Re_pcre.regexp({|__|});
+
+let subDot = s => ".";
+
+let moreThanOneSpace = Re_pcre.regexp({|\s[\s]*|});
+
+let subOneSpace = s => " ";
+
+/*
+ * Collapses multiple spaces into a single space.
+ */
+let collapseSpacing = s =>
+  Re_pcre.substitute(~rex=moreThanOneSpace, ~subst=subOneSpace, s);
+
+/*
+ * Replaces the common module alias names with their conceptual counterparts
+ * (double underscores become dot).
+ */
+let removeModuleAlias = s =>
+  Re_pcre.substitute(~rex=doubleUnder, ~subst=subDot, s);
+
 let indentStr = (prefixStr, s) =>
-  String.split_on_char('\n', s)
-  |> List.map(s => prefixStr ++ s)
-  |> String.concat("\n");
+  if (prefixStr == "") {
+    s;
+  } else {
+    String.split_on_char('\n', s)
+    |> List.map(s => prefixStr ++ s)
+    |> String.concat("\n");
+  };
 
 /* Batteries library substitutes */
 let listDrop = (n, lst) => {
@@ -357,3 +382,179 @@ let highlight =
        stringSlice(~first, ~last, str),
      )
   ++ stringSlice(~first=last, str);
+
+/*
+ * Returns whether or not the string has newlines. Only looks for \n so just
+ * use this for non-critical things.
+ */
+let hasNewline = str =>
+  switch (String.index_from(str, 0, '\n')) {
+  | exception e => false
+  | _ => true
+  };
+
+let tokens = [
+  /* Named arguments */
+  ({|~[a-z][a-zA-Z0-9_']*\b|}, yellow),
+  ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
+  (
+    {|\bif\b|\belse\b|\bfor\b|\bfor\b|\bwhile\b|\bswitch\b|\bint\b|\bstring\b|\blist\b|},
+    yellow,
+  ),
+  ({|\b[0-9]+\b|}, blue),
+  ({|\b[A-Z][A-Za-z0-9_]*\b|}, blue),
+  ({|\s\+\+\s|\s\+\s|\s\-\s|\s=>\s|\s==\s|}, red),
+];
+
+let tokenRegex =
+  String.concat("|", List.map(((rStr, _)) => "(" ++ rStr ++ ")", tokens));
+
+/*
+ * This is so much more complicated because highlighting doesn't support
+ * nesting right now.
+ */
+let highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
+  let rex = Re_pcre.regexp(tokenRegex);
+  let splitted = Re_pcre.full_split(~rex, txt);
+  let strings =
+    List.map(
+      fun
+      | Re_pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
+      | Delim(s) => "" /* Let the Group do the highlighting */
+      | Group(i, s) => {
+          let (r, color) = List.nth(tokens, i - 1);
+          highlight(~dim, ~bold, ~underline, ~color, s);
+        }
+      | NoGroup => "",
+      splitted,
+    );
+  String.concat("", strings);
+};
+
+let highlightSource = (~dim=false, ~underline=false, ~bold=false, txt) => {
+  let splitOnQuotes = String.split_on_char('"', txt);
+  let balancedQuotes = List.length(splitOnQuotes) mod 2 === 1;
+  if (balancedQuotes) {
+    let chunks =
+      List.mapi(
+        (i, chunk) =>
+          if (i mod 2 === 0) {
+            highlightTokens(~dim, ~underline, ~bold, chunk, tokens);
+          } else {
+            highlight(~dim, ~underline, ~color=green, "\"" ++ chunk ++ "\"");
+          },
+        splitOnQuotes,
+      );
+    String.concat("", chunks);
+  } else {
+    highlightTokens(~dim, ~bold, ~underline, txt, tokens);
+  };
+};
+
+let isWhiteChar = c => c === ' ' || c === '\n' || c === '\t' || c === '\r';
+
+let isWordBoundary = c => c === '.' || c === ',' || c === '(' || c === ')';
+
+/*
+ * prevIndex is the index before the search start location. (or after if inc is
+ * negative)
+ */
+let nextNonWhiteChar = (s, inc, prevIndex) => {
+  let res = {contents: None};
+  let i = {contents: prevIndex + inc};
+  let len = String.length(s);
+  while (res.contents === None && i.contents < len && i.contents > (-1)) {
+    if (isWhiteChar(s.[i.contents])) {
+      i.contents = i.contents + inc;
+    } else {
+      res.contents = Some(i.contents);
+    };
+  };
+  res.contents;
+};
+
+/*
+ * Returns the (aStartLen, aEndLen, bStartLen, bEndLen) of string a that
+ * represents common suffix/prefix without regarding white space in
+ * commonality.
+ * Aligns to word boundaries.
+ */
+let findCommonEnds = (aStr, bStr) => {
+  let aLen = String.length(aStr);
+  let bLen = String.length(bStr);
+  let minLen = min(aLen, bLen);
+  let aPrefixLen = {contents: 0};
+  let aPrefixLenBoundary = {contents: 0};
+  let bPrefixLen = {contents: 0};
+  let bPrefixLenBoundary = {contents: 0};
+  let aSuffixLen = {contents: 0};
+  let aSuffixLenBoundary = {contents: 0};
+  let bSuffixLen = {contents: 0};
+  let bSuffixLenBoundary = {contents: 0};
+  let continuePrefix = {contents: true};
+  let continueSuffix = {contents: true};
+  while (continuePrefix.contents
+         && aPrefixLen.contents < minLen
+         && bPrefixLen.contents < minLen) {
+    let nextNonwhiteA = nextNonWhiteChar(aStr, 1, aPrefixLen.contents - 1);
+    let nextNonwhiteB = nextNonWhiteChar(bStr, 1, bPrefixLen.contents - 1);
+    switch (nextNonwhiteA, nextNonwhiteB) {
+    | (None, None)
+    | (None, Some(_))
+    | (Some(_), None) => continuePrefix.contents = false
+    | (Some(na), Some(nb)) =>
+      /* Or if we didn't merely increment within a word, mark the end of
+       * previous word as prefix  */
+      if (na > aPrefixLen.contents + 1 && nb > bPrefixLen.contents + 1) {
+        aPrefixLenBoundary.contents = aPrefixLen.contents;
+        bPrefixLenBoundary.contents = bPrefixLen.contents;
+      };
+      if (aStr.[na] === bStr.[nb]) {
+        if (isWordBoundary(aStr.[na])) {
+          aPrefixLenBoundary.contents = na + 1;
+          bPrefixLenBoundary.contents = nb + 1;
+        };
+        aPrefixLen.contents = na + 1;
+        bPrefixLen.contents = nb + 1;
+      } else {
+        continuePrefix.contents = false;
+      };
+    };
+  };
+  while (continueSuffix.contents
+         && aSuffixLen.contents < minLen
+         && bSuffixLen.contents < minLen) {
+    let nextNonwhiteA =
+      nextNonWhiteChar(aStr, -1, aLen - aSuffixLen.contents);
+    let nextNonwhiteB =
+      nextNonWhiteChar(bStr, -1, bLen - bSuffixLen.contents);
+    switch (nextNonwhiteA, nextNonwhiteB) {
+    | (None, None)
+    | (None, Some(_))
+    | (Some(_), None) => continueSuffix.contents = false
+    | (Some(na), Some(nb)) =>
+      /* Or if we didn't merely increment within a word, mark the end of
+       * previous word as prefix  */
+      if (na < aSuffixLen.contents - 1 && nb < bSuffixLen.contents - 1) {
+        aSuffixLenBoundary.contents = aSuffixLen.contents;
+        bSuffixLenBoundary.contents = bSuffixLen.contents;
+      };
+      if (aStr.[na] === bStr.[nb]) {
+        if (isWordBoundary(aStr.[na])) {
+          aSuffixLenBoundary.contents = aLen - na;
+          bSuffixLenBoundary.contents = bLen - nb;
+        };
+        aSuffixLen.contents = aLen - na;
+        bSuffixLen.contents = bLen - nb;
+      } else {
+        continueSuffix.contents = false;
+      };
+    };
+  };
+  (
+    aPrefixLenBoundary.contents,
+    aSuffixLenBoundary.contents,
+    bPrefixLenBoundary.contents,
+    bSuffixLenBoundary.contents,
+  );
+};

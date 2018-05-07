@@ -18,21 +18,25 @@
 [2m 6 ┆ [0m[2m[35mlet[0m[2m[39m result = thisFunction (fun aa c u -> aa[0m[2m[31m + [0m[2m[39mb +c)[0m
 [2m 7 ┆ [0m
 
-[1mThis type doesn't match what is expected.[0m
+[1mThis Type Doesn't Match What Is Expected.[0m
 
-[1m  This type:[0m
-[1m[31m  (int, int, int, int, int)[0m
+  This type:
+    [31m([0m[1m[31mint, int, int, int, int[0m[31m)[0m
+
+  Expecting:
+    [32m([0m[1m[32m
+      reallyReallyLongNameWillBreak,
+      reallyReallyLongNameWillBreak,
+      reallyReallyLongNameWillBreak,
+      reallyReallyLongNameWillBreak,
+      reallyReallyLongNameWillBreak
+    [0m[32m)[0m
 
 
-[1m  Expecting:[0m
-[32m  (
-    reallyReallyLongNameWillBreak,
-    reallyReallyLongNameWillBreak,
-    reallyReallyLongNameWillBreak,
-    reallyReallyLongNameWillBreak,
-    reallyReallyLongNameWillBreak
-  )[0m
+[1mThe Contradicting Part:[0m
 
-Extra info: Type int is not compatible with type reallyReallyLongNameWillBreak
+  The type:    [31m[0m[1m[31mint[0m[31m[0m
+  Contradicts: [32m[0m[1m[32mreallyReallyLongNameWillBreak[0m[32m[0m
+
 
 

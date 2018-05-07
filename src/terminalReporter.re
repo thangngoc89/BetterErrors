@@ -29,61 +29,6 @@ let startingSpacesCount = str => {
   startingSpacesCount'(str, 0);
 };
 
-let tokens = [
-  /* Named arguments */
-  ({|~[a-z][a-zA-Z0-9_']*\b|}, yellow),
-  ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
-  ({|\bif\b|\belse\b|\bfor\b|\bfor\b|\bwhile\b|\bswitch\b|\bstring\b|\blist\b|}, yellow),
-  ({|\b[0-9]+\b|}, blue),
-  ({|\b[A-Z][A-Za-z0-9_]*\b|}, blue),
-  ({|\s\+\+\s|\s\+\s|\s\-\s|\s=>\s|\s==\s|}, red),
-];
-
-let tokenRegex =
-  String.concat("|", List.map(((rStr, _)) => "(" ++ rStr ++ ")", tokens));
-
-
-/*
- * This is so much more complicated because highlighting doesn't support
- * nesting right now.
- */
-let highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
-  let rex = Re_pcre.regexp(tokenRegex);
-  let splitted = Re_pcre.full_split(~rex, txt);
-  let strings = List.map(
-    fun
-      | Re_pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
-      | Delim(s) => "" /* Let the Group do the highlighting */
-      | Group(i, s) => {
-        let (r, color) = List.nth(tokens, i - 1);
-        highlight(~dim, ~bold, ~underline, ~color, s)
-      }
-      | NoGroup => "",
-    splitted
-  );
-  String.concat("", strings);
-};
-let highlightSource = (~dim=false, ~underline=false, ~bold=false, txt) => {
-  let splitOnQuotes = String.split_on_char('"', txt);
-  let balancedQuotes = List.length(splitOnQuotes) mod 2 === 1;
-  if (balancedQuotes) {
-    let chunks =
-      List.mapi(
-        (i, chunk) => {
-          if (i mod 2 === 0) {
-            highlightTokens(~dim, ~underline, ~bold, chunk, tokens);
-          } else {
-            highlight(~dim, ~underline, ~color=green, "\"" ++ chunk ++ "\"")
-          }
-        },
-        splitOnQuotes
-      );
-    String.concat("", chunks);
-  } else {
-    highlightTokens(~dim, ~bold, ~underline, txt, tokens);
-  };
-};
-
 /* row and col 0-indexed; endColumn is 1 past the actual end. See
    Main.compilerLineColsToRange */
 let _printFile =

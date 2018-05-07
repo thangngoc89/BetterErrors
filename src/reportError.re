@@ -5,19 +5,9 @@ open Helpers;
 let suggestifyList = suggestions =>
   suggestions |> List.map(sug => yellow("- " ++ sug));
 
-let highlightPart = (~color, ~part, str) => {
-  let indexOfPartInStr = Helpers.stringFind(str, part);
-  highlight(
-    ~color,
-    ~first=indexOfPartInStr,
-    ~last=indexOfPartInStr + String.length(part),
-    str,
-  );
-};
-
 let refmttypeNewlineR = Re_pcre.regexp({|\\n|});
 
-let formatOutputSyntax = (~refmttypePath, types) =>
+let toReasonTypes = (~refmttypePath, types) =>
   switch (refmttypePath) {
   | None => types
   | Some(path) =>
@@ -42,8 +32,153 @@ let formatOutputSyntax = (~refmttypePath, types) =>
     List.rev(result^);
   };
 
+let toReasonTypes1 = (~refmttypePath, one) =>
+  switch (toReasonTypes(~refmttypePath, [one])) {
+  | [a] => a
+  | _ => one
+  };
+
+let toReasonTypes2 = (~refmttypePath, one, two) =>
+  switch (toReasonTypes(~refmttypePath, [one, two])) {
+  | [a, b] => (a, b)
+  | _ => (one, two)
+  };
+
+let highlightType = (typ, other, hl, diffHl) => {
+  let (typPrefixLen, typSuffixLen, otherPrefixLen, otherSuffixLen) =
+    findCommonEnds(typ, other);
+  let len = String.length(typ);
+  let prefix = String.sub(typ, 0, typPrefixLen);
+  let suffix = String.sub(typ, len - typSuffixLen, typSuffixLen);
+  let mid = String.sub(typ, typPrefixLen, len - typPrefixLen - typSuffixLen);
+  hl(prefix) ++ diffHl(mid) ++ hl(suffix);
+};
+
+/*
+ * Renders type equalities but also accepts "others" which are the
+ * contradicting types which can be used to highlight the diff in the types
+ * being printed.
+ *
+ * ~types: A list of type equivalencies.
+ * ~others: Corresponding type equivalences for the contradicting type.
+ * ~diffHl: How to highlight the diff portion between the two.
+ */
+let rec renderTypeEquality = (~lines=[], ~types, ~others, hl, diffHl) =>
+  switch (types, others) {
+  | ([hd, ...tl], [opHd, ...opTl]) =>
+    let indent = List.length(lines) > 0 ? "" : "";
+    let lines = [
+      indentStr(indent, highlightType(hd, opHd, hl, diffHl)),
+      ...lines,
+    ];
+    renderTypeEquality(~lines, ~types=tl, ~others=opTl, hl, diffHl);
+  | ([hd, ...tl], []) =>
+    let indent = List.length(lines) > 0 ? "" : "";
+    let lines = [
+      indentStr(indent, highlightType(hd, "", hl, diffHl)),
+      ...lines,
+    ];
+    renderTypeEquality(~lines, ~types=tl, ~others=[], hl, diffHl);
+  | ([], _) => String.concat(dim("\nEquals\n"), List.rev(lines))
+  };
+
+let renderInequality = (~isDetail, ~actual, ~expected) => {
+  /*
+   * If there are more than one total incompatable messages, or if the one
+   * and only incompat message has line breaks, we'll print the more detailed
+   * version with some comforatable white space.
+   */
+  let diffBad = highlight(~color=red, ~bold=true, ~dim=false);
+  let diffGood = highlight(~color=green, ~bold=true, ~dim=false);
+  let bad = highlight(~color=red, ~bold=false, ~dim=false);
+  let good = highlight(~color=green, ~bold=false, ~dim=false);
+  let actualStr =
+    renderTypeEquality(~types=actual, ~others=expected, bad, diffBad);
+  let expectedStr =
+    renderTypeEquality(~types=expected, ~others=actual, good, diffGood);
+  let indent = "  ";
+  let thisType = isDetail ? "The type:   " : "This type:";
+  let expecting = isDetail ? "Contradicts:" : "Expecting:";
+  if (List.length(actual) > 1
+      || List.length(expected) > 1
+      || List.exists(hasNewline, actual)
+      || List.exists(hasNewline, expected)) {
+    [
+      indent ++ thisType,
+      indentStr(indent ++ indent, actualStr),
+      "",
+      indent ++ expecting,
+      indentStr(indent ++ indent, expectedStr),
+      "",
+    ];
+  } else {
+    [
+      sp("%s %s", indent ++ thisType, actualStr),
+      sp("%s %s", indent ++ expecting, expectedStr),
+      "",
+    ];
+  };
+};
+
+let doubleUnder = Re_pcre.regexp({|__|});
+
+let subDot = s => ".";
+
+/*
+ * Often types are reported with separate type equalities listed for module
+ * aliases but these are really not very helpful and more confusing than
+ * anything. Let's filter these out.
+ */
+let normalizeEquivalencies = strings =>
+  switch (strings) {
+  | [] => []
+  | [hd] => [hd]
+  | [hd, ...tl] =>
+    let hdNoSpace = collapseSpacing(hd);
+    let rest =
+      List.filter(
+        s => collapseSpacing(removeModuleAlias(s)) != hdNoSpace,
+        tl,
+      );
+    [hd, ...rest];
+  };
+
+let normalizeIncompat = (inc: incompat) => {
+  actual: normalizeEquivalencies(inc.actual),
+  expected: normalizeEquivalencies(inc.expected),
+};
+
+let normalizeIncompatibleType = incType => {
+  ...incType,
+  main: normalizeIncompat(incType.main),
+  incompats: List.map(normalizeIncompat, incType.incompats),
+};
+
+/*
+ * Algorithm for injecting highlighting:
+ *
+ * A = A' not compatible with B = B'
+ * AA = AA' not compatible with BB = BB'
+ * AAA = AAA' not compatible with BBB = BBB'
+ *
+ * Either AA or AA' will be in at least one of A or A'.
+ * Either BB or BB' will be in at least one of B or B'.
+ * And so on.
+ *
+ * 1. Find the first point where A and B differ.
+ *    Find the first point where A' and B' differ.
+ *
+ * We try to fold AAA/BBB or their primes into AA/BB or their primes just by
+ * highlighting.
+ * If not, we show AAA/BBB.
+ *
+ * We try to fold AA/BB into A/B just by highlighting.
+ * If not, we show AA/BB.
+ */
 let report = (~refmttypePath, parsedContent) : list(string) => {
-  let formatOutputSyntax = formatOutputSyntax(~refmttypePath);
+  let toReasonTypes = toReasonTypes(~refmttypePath);
+  let toReasonTypes1 = toReasonTypes1(~refmttypePath);
+  let toReasonTypes2 = toReasonTypes2(~refmttypePath);
   /*
    * For some reason refmttype outputs the string (backslash followed by n)
    * instead of actual newlines.
@@ -59,80 +194,60 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
         actualCount == 1 ? "" : "s",
       ),
     ]
-  | Type_IncompatibleType({
-      actual,
-      expected,
-      differingPortion,
-      actualEquivalentType,
-      expectedEquivalentType,
-      extra,
-    }) =>
+  | Type_IncompatibleType(incompatibleType) =>
+    let {extra, main, incompats} =
+      normalizeIncompatibleType(incompatibleType);
     /* let (diffA, diffB) = differingPortion; */
-    let (actual, expected) =
-      switch (formatOutputSyntax([actual, expected])) {
-      | [a, b] => (a, b)
-      | _ => (actual, expected)
-      };
-    let actualHasBreaks =
-      switch (String.index_from(actual, 0, '\n')) {
-      | exception e => false
-      | _ => true
-      };
-    let expectedHasBreaks =
-      switch (String.index_from(expected, 0, '\n')) {
-      | exception e => false
-      | _ => true
-      };
-    let main =
-      if (actualHasBreaks || expectedHasBreaks) {
+    let expected = toReasonTypes(main.expected);
+    let actual = toReasonTypes(main.actual);
+    /*
+     * If there are more than one total incompatable messages, or if the one
+     * and only incompat message has line breaks, we'll print the more detailed
+     * version with some comforatable white space.
+     */
+    let main = [
+      bold("This Type Doesn't Match What Is Expected."),
+      "",
+      ...renderInequality(~isDetail=false, ~expected, ~actual),
+    ];
+    let mainStr = String.concat("\n", main);
+    let withoutExtra =
+      switch (incompats) {
+      | [] => [mainStr]
+      | [_, ..._] =>
+        let incompatLines =
+          List.map(
+            (inc: incompat) => {
+              let expected = toReasonTypes(inc.expected);
+              let actual = toReasonTypes(inc.actual);
+              String.concat(
+                "\n",
+                renderInequality(~isDetail=true, ~expected, ~actual),
+              );
+            },
+            incompats,
+          )
+          |> String.concat("\n\n");
         [
+          incompatLines,
           "",
-          highlight(~color=green, indentStr("  ", expected)),
-          bold("  Expecting:"),
-          "",
-          "",
-          highlight(~color=red, ~bold=true, indentStr("  ", actual)),
-          bold("  This type:"),
-          "",
-          bold("This type doesn't match what is expected."),
-        ];
-      } else {
-        [
-          "",
-          sp(
-            "%s %s",
-            bold("  Expecting:"),
-            highlight(~color=green, expected),
-          ),
-          sp(
-            "%s %s",
-            bold("  This type:"),
-            highlight(~color=red, ~bold=true, actual),
+          bold(
+            "The Contradicting Part"
+            ++ (List.length(incompats) > 1 ? "s:" : ":"),
           ),
           "",
-          bold("This type doesn't match what is expected."),
+          mainStr,
         ];
       };
-    switch (extra) {
-    | Some(e) => ["Extra info: " ++ e, ...main]
-    | None => main
-    };
+    extra == "" ? withoutExtra : ["Extra info: " ++ extra, ...withoutExtra];
   | Type_NotAFunction({actual}) =>
-    let actual =
-      switch (formatOutputSyntax([actual])) {
-      | [a] => a
-      | _ => actual
-      };
+    let actual = toReasonTypes1(actual);
     [
       "This has type " ++ actual ++ ", but you are calling it as a function.",
       "Perhaps you have forgoten a semicolon, or a comma somewhere.",
     ];
   | Type_AppliedTooMany({functionType, expectedArgCount}) =>
-    let functionType =
-      switch (formatOutputSyntax([functionType])) {
-      | [a] => a
-      | _ => functionType
-      };
+    let functionType = toReasonTypes1(functionType);
     [
       sp(
         "It accepts only %d arguments. You gave more. Maybe you forgot a ; somewhere?",
@@ -141,11 +256,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       sp("This function has type %s", functionType),
     ];
   | Type_FunctionWrongLabel({functionType, labelIssue}) =>
-    let functionType =
-      switch (formatOutputSyntax([functionType])) {
-      | [a] => a
-      | _ => functionType
-      };
+    let functionType = toReasonTypes1(functionType);
     let labelIssueStr =
       switch (labelIssue) {
       | HasOptionalLabel(str) =>
@@ -193,11 +304,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       sp("The character `%s` is illegal.", character),
     ]
   | Type_UnboundTypeConstructor({namespacedConstructor, suggestion}) =>
-    let namespacedConstructor =
-      switch (formatOutputSyntax([namespacedConstructor])) {
-      | [a] => a
-      | _ => namespacedConstructor
-      };
+    let namespacedConstructor = toReasonTypes1(namespacedConstructor);
     let main =
       sp(
         "The type %s can't be found.",
@@ -208,11 +315,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     | Some(h) => [sp("Hint: did you mean %s?", yellow(h)), "", main]
     };
   | Type_ArgumentCannotBeAppliedWithLabel({functionType, attemptedLabel}) =>
-    let formattedFunctionType =
-      switch (formatOutputSyntax([functionType])) {
-      | [a] => a
-      | _ => functionType
-      };
+    let formattedFunctionType = toReasonTypes1(functionType);
     [
       sp(
         "This function doesn't accept an argument named ~%s.",
@@ -256,11 +359,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       ])
     }
   | Type_UnboundRecordField({recordField, suggestion}) =>
-    let recordField =
-      switch (formatOutputSyntax([recordField])) {
-      | [a] => a
-      | _ => recordField
-      };
+    let recordField = toReasonTypes1(recordField);
     let main =
       switch (suggestion) {
       | None =>
@@ -286,11 +385,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       recordField,
       suggestion,
     }) =>
-    let expressionType =
-      switch (formatOutputSyntax([expressionType])) {
-      | [a] => a
-      | _ => expressionType
-      };
+    let expressionType = toReasonTypes1(expressionType);
     let main = [
       sp("The field %s doesn't belong to it", red(~bold=true, recordField)),
       sp("This record has type: %s", bold(expressionType)),
@@ -314,11 +409,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       ),
     ]
   | Type_UnboundModule({unboundModule, suggestion}) =>
-    let unboundModule =
-      switch (formatOutputSyntax([unboundModule])) {
-      | [a] => a
-      | _ => unboundModule
-      };
+    let unboundModule = toReasonTypes1(unboundModule);
     let main =
       sp(
         "Module %s not found in included libraries.\n",
@@ -390,11 +481,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       );
     let badValueMsg = info => {
       let (what, named, good, goodFile, goodLn, badName, bad, badFile, badLn) = info;
-      let (bad, good) =
-        switch (formatOutputSyntax([bad, good])) {
-        | [a, b] => (a, b)
-        | _ => (bad, good)
-        };
+      let (bad, good) = toReasonTypes2(bad, good);
       String.concat(
         "\n",
         [
@@ -422,11 +509,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     };
     let badTypeMsg = info => {
       let (good, goodFile, goodLn, bad, badFile, badLn, arity) = info;
-      let (bad, good) =
-        switch (formatOutputSyntax([bad, good])) {
-        | [a, b] => (a, b)
-        | _ => (bad, good)
-        };
+      let (bad, good) = toReasonTypes2(bad, good);
       String.concat(
         "\n",
         [

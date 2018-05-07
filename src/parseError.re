@@ -17,18 +17,10 @@ let stripCommonPrefix = ((l1, l2)) => {
 
 let applyToBoth = (f, (a, b)) => (f(a), f(b));
 
-let typeDiff = (a, b) =>
-  /* look ma, functional programming! */
-  (Helpers.stringNsplit(a, ~by="."), Helpers.stringNsplit(b, ~by="."))
-  |> stripCommonPrefix
-  |> applyToBoth(List.rev)
-  |> stripCommonPrefix
-  |> applyToBoth(List.rev)
-  |> applyToBoth(String.concat("."));
-
 let splitEquivalentTypes = raw =>
-  try (Some(Helpers.stringSplit(raw, ~by="="))) {
-  | Not_found => None
+  switch (Helpers.stringSplit(raw, ~by="=")) {
+  | exception Not_found => [String.trim(raw)]
+  | (x, y) => [String.trim(x), String.trim(y)]
   };
 
 let functionArgsCount = str => {
@@ -45,6 +37,38 @@ let functionArgsCount = str => {
 /* need: where the original expected comes from  */
 /* TODO: when it's a -> b vs b, ask if whether user forgot an argument to the
    func */
+let incompatR =
+  Re_pcre.regexp({|([\s\S]*?)is not compatible with type([\s\S]*)|});
+
+let typeIncompatsR = Re_pcre.regexp({|\s*\s\sType|});
+
+let extractTypeIncompatsFromExtra = extra => {
+  let extraWithTwoSpaces = "  " ++ extra;
+  /*
+   * Need to add back the two spaces before the first Type to make sure it
+   * actually gets detected in this regex for the first occurence. It was too
+   * hard to make the original regex capture the two leading spaces.
+   */
+  let splitted = Re_pcre.full_split(~rex=typeIncompatsR, extraWithTwoSpaces);
+  let folder = ((curOther, curIncompats), next) =>
+    switch (next) {
+    | Re_pcre.Text(str) =>
+      let (incompatA, incompatB) = (
+        Re_pcre.get_substring(Re_pcre.exec(~rex=incompatR, str), 1),
+        Re_pcre.get_substring(Re_pcre.exec(~rex=incompatR, str), 2),
+      );
+      let incompat = {
+        actual: splitEquivalentTypes(incompatA),
+        expected: splitEquivalentTypes(incompatB),
+      };
+      (curOther, [incompat, ...curIncompats]);
+    | _ => (curOther, curIncompats)
+    };
+  let (remainingExtra, incompats) =
+    List.fold_left(folder, ("", []), splitted);
+  (remainingExtra, List.rev(incompats));
+};
+
 let type_IncompatibleType = (err, _, range) => {
   /* the type actual and expected might be on their own line */
   /* sometimes the error msg might equivalent types, e.g. "myType = string isn't
@@ -54,37 +78,24 @@ let type_IncompatibleType = (err, _, range) => {
        real-time regex visualization today. */
     {|This expression has type([\s\S]*?)but an expression was expected of type([\s\S]*?)(Type\b([\s\S]*?)|$)?((The type constructor[\s\S]*?)|$)?((The type variable[\s\S]* occurs inside ([\s\S])*)|$)|};
   let extraRaw = get_match_n_maybe(3, allR, err);
-  let extra =
+  let (extra, incompats) =
     switch (extraRaw) {
     | Some(a) =>
       if (String.trim(a) == "") {
-        None;
+        ("", []);
       } else {
-        Some(String.trim(a));
+        let extra = String.trim(a);
+        extractTypeIncompatsFromExtra(extra);
       }
-    | None => None
+    | None => ("", [])
     };
   let actualRaw = get_match_n(1, allR, err);
   let expectedRaw = get_match_n(2, allR, err);
-  let (actual, actualEquivalentType) =
-    switch (splitEquivalentTypes(actualRaw)) {
-    | Some((a, b)) => (String.trim(a), Some(String.trim(b)))
-    | None => (String.trim(actualRaw), None)
-    };
-  let (expected, expectedEquivalentType) =
-    switch (splitEquivalentTypes(expectedRaw)) {
-    | Some((a, b)) => (String.trim(a), Some(String.trim(b)))
-    | None => (String.trim(expectedRaw), None)
-    };
-  Type_IncompatibleType({
-    actual,
-    expected,
-    differingPortion: typeDiff(actual, expected),
-    /* TODO: actually use this */
-    actualEquivalentType,
-    expectedEquivalentType,
-    extra,
-  });
+  let main = {
+    actual: splitEquivalentTypes(actualRaw),
+    expected: splitEquivalentTypes(expectedRaw),
+  };
+  Type_IncompatibleType({main, incompats, extra});
 };
 
 /* TODO: differing portion data structure a-la diff table */

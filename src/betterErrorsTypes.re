@@ -120,13 +120,21 @@ type badFileName =
   | Contains(string)
   | UnknownIllegalChar;
 
+type incompat = {
+  /* List of type equivalencies */
+  actual: list(string),
+  /* List of type equivalencies */
+  expected: list(string),
+};
+
 type incompatibleType = {
-  actual: string,
-  expected: string,
-  differingPortion: (string, string),
-  actualEquivalentType: option(string),
-  expectedEquivalentType: option(string),
-  extra: option(string),
+  extra: string,
+  /*
+   * When the compiler points out incompatible parts. It's not clear if A or B
+   * belongs to expected vs. observed. Extracted from extra.
+   */
+  main: incompat,
+  incompats: list(incompat),
 };
 
 type notAFunction = {actual: string};

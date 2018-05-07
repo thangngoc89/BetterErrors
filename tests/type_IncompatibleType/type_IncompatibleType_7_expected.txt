@@ -12,11 +12,23 @@
 [2m14 ┆ [0m
 [2m[31m15 ┆ [0m[2m[35mlet[0m[2m[39m () = dec [0m[4m[1m[31minc[0m
 
-[1mThis type doesn't match what is expected.[0m
+[1mThis Type Doesn't Match What Is Expected.[0m
 
-[1m  This type:[0m [1m[31mAbc.myInt => Def.myFloat[0m
-[1m  Expecting:[0m [32mAbc.myString => Def.myBool[0m
+  This type: [31mAbc.[0m[1m[31mmyInt => Def.myFloat[0m[31m[0m
+  Expecting: [32mAbc.[0m[1m[32mmyString => Def.myBool[0m[32m[0m
 
-Extra info: Type Abc.myInt = int is not compatible with type Abc.myString = string
+
+[1mThe Contradicting Part:[0m
+
+  The type:   
+    [31mAbc.[0m[1m[31mmyInt[0m[31m[0m[2m
+    Equals
+    [0m[31m[0m[1m[31mint[0m[31m[0m
+
+  Contradicts:
+    [32mAbc.[0m[1m[32mmyString[0m[32m[0m[2m
+    Equals
+    [0m[32m[0m[1m[32mstring[0m[32m[0m
+
 
 

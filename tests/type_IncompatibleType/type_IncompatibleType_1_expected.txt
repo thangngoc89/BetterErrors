@@ -8,10 +8,10 @@
 
 [2m[31m1 ┆ [0m[2m[33mif[0m[2m[39m [0m[4m[1m[31m123[0m[2m[39m then [0m[2m[32m"asd"[0m[2m[39m [0m[2m[33melse[0m[2m[39m [0m[2m[32m"a"[0m
 
-[1mThis type doesn't match what is expected.[0m
+[1mThis Type Doesn't Match What Is Expected.[0m
 
-[1m  This type:[0m [1m[31mint[0m
-[1m  Expecting:[0m [32mbool[0m
+  This type: [31m[0m[1m[31mint[0m[31m[0m
+  Expecting: [32m[0m[1m[32mbool[0m[32m[0m
 
 
 
