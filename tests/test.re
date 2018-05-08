@@ -22,7 +22,7 @@ let folders = [
   ("type_IncompatibleType", 9, [], []),
   ("type_MismatchTypeArguments", 1, [], []),
   ("type_NotAFunction", 1, [], []),
-  ("type_RecordFieldNotBelong", 2, [], []),
+  ("type_RecordFieldNotBelong", 3, [], []),
   ("type_RecordFieldsUndefined", 1, [], []),
   ("type_UnboundModule", 2, [], []),
   ("type_UnboundRecordField", 2, [], []),

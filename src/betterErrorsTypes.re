@@ -90,7 +90,8 @@ type recordFieldNotInExpression = {
 };
 
 type recordFieldNotBelong = {
-  expressionType: string,
+  term,
+  recordType: string,
   recordField: string,
   suggestion: option(string),
 };

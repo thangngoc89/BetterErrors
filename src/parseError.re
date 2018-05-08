@@ -293,13 +293,25 @@ let type_UnboundRecordField = (err, _, _) => {
 };
 
 let type_RecordFieldNotBelongPattern = (err, _, _) => {
-  let expressionTypeR = {|This record pattern is expected to have type (\w+)|};
+  let expressionTypeR = {|This (expression has type|record expression is expected to have type|record pattern is expected to have type)([\s\S]*)The field|};
+  let term =
+    switch (get_match_n(1, expressionTypeR, err)) {
+    | "expression has type"
+    | "record expression is expected to have type" => Expression
+    | "record pattern is expected to have type" => Pattern
+    | _ => Expression
+    };
   let recordFieldR = {|The field (\w+) does not belong to type|};
-  let expressionType = get_match(expressionTypeR, err);
+  let recordType = get_match_n(2, expressionTypeR, err);
   let recordField = get_match(recordFieldR, err);
   let suggestionR = {|Hint: Did you mean (\w+)\?|};
   let suggestion = get_match_maybe(suggestionR, err);
-  Type_RecordFieldNotBelongPattern({expressionType, recordField, suggestion});
+  Type_RecordFieldNotBelongPattern({
+    term,
+    recordType,
+    recordField,
+    suggestion,
+  });
 };
 
 let type_SomeRecordFieldsUndefined = (err, _, _) => {

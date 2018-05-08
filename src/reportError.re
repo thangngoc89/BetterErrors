@@ -406,18 +406,37 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       main,
     ];
   | Type_RecordFieldNotBelongPattern({
-      expressionType,
+      term,
+      recordType,
       recordField,
       suggestion,
     }) =>
-    let expressionType = toReasonTypes1(expressionType);
+    let recordType = toReasonTypes1(recordType);
+    let termStr = term === Expression ? "expression" : "pattern";
     let main = [
-      sp("The field %s doesn't belong to it", red(~bold=true, recordField)),
-      sp("This record has type: %s", bold(expressionType)),
+      "",
+      sp(
+        "%s %s %s",
+        bold("This field"),
+        red(~bold=true, recordField),
+        bold("doesn't belong to the record."),
+      ),
     ];
+    let main =
+      hasNewline(recordType) ?
+        [
+          bold(recordType),
+          "",
+          bold("The record " ++ termStr ++ " has type:"),
+          ...main,
+        ] :
+        [
+          bold("The record " ++ termStr ++ " has type: " ++ recordType),
+          ...main,
+        ];
     switch (suggestion) {
     | None => main
-    | Some(hint) => [sp("Did you mean %s?", yellow(hint)), ...main]
+    | Some(hint) => [sp("Did you mean %s?", yellow(hint)), "", ...main]
     };
   | Type_SomeRecordFieldsUndefined(recordField) => [
       "record is of some other type - one that does have a "
