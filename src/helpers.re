@@ -482,7 +482,6 @@ let nextNonWhiteChar = (s, inc, prevIndex) => {
 let findCommonEnds = (aStr, bStr) => {
   let aLen = String.length(aStr);
   let bLen = String.length(bStr);
-  let minLen = min(aLen, bLen);
   let aPrefixLen = {contents: 0};
   let aPrefixLenBoundary = {contents: 0};
   let bPrefixLen = {contents: 0};
@@ -494,14 +493,30 @@ let findCommonEnds = (aStr, bStr) => {
   let continuePrefix = {contents: true};
   let continueSuffix = {contents: true};
   while (continuePrefix.contents
-         && aPrefixLen.contents < minLen
-         && bPrefixLen.contents < minLen) {
+         && aPrefixLen.contents <= aLen
+         && bPrefixLen.contents <= bLen) {
     let nextNonwhiteA = nextNonWhiteChar(aStr, 1, aPrefixLen.contents - 1);
     let nextNonwhiteB = nextNonWhiteChar(bStr, 1, bPrefixLen.contents - 1);
     switch (nextNonwhiteA, nextNonwhiteB) {
-    | (None, None)
-    | (None, Some(_))
-    | (Some(_), None) => continuePrefix.contents = false
+    | (None, None) =>
+      aPrefixLenBoundary.contents = aPrefixLen.contents;
+      bPrefixLenBoundary.contents = bPrefixLen.contents;
+      continuePrefix.contents = false;
+    | (None, Some(nb)) =>
+      print_newline();
+      /* If one was already at its word end */
+      if (nb > bPrefixLen.contents) {
+        aPrefixLenBoundary.contents = aPrefixLen.contents;
+        bPrefixLenBoundary.contents = bPrefixLen.contents;
+      };
+      continuePrefix.contents = false;
+    | (Some(na), None) =>
+      /* If one was already at its word end */
+      if (na > aPrefixLen.contents) {
+        aPrefixLenBoundary.contents = aPrefixLen.contents;
+        bPrefixLenBoundary.contents = bPrefixLen.contents;
+      };
+      continuePrefix.contents = false;
     | (Some(na), Some(nb)) =>
       /* Or if we didn't merely increment within a word, mark the end of
        * previous word as prefix  */
@@ -522,13 +537,17 @@ let findCommonEnds = (aStr, bStr) => {
     };
   };
   while (continueSuffix.contents
-         && aSuffixLen.contents < minLen
-         && bSuffixLen.contents < minLen) {
+         && aSuffixLen.contents < aLen
+         - aPrefixLenBoundary.contents
+         && bSuffixLen.contents < bLen
+         - bPrefixLenBoundary.contents) {
     let nextNonwhiteA =
       nextNonWhiteChar(aStr, -1, aLen - aSuffixLen.contents);
     let nextNonwhiteB =
       nextNonWhiteChar(bStr, -1, bLen - bSuffixLen.contents);
     switch (nextNonwhiteA, nextNonwhiteB) {
+    /* I think these first three cases would have been caught by the prefix
+     * finding portion */
     | (None, None)
     | (None, Some(_))
     | (Some(_), None) => continueSuffix.contents = false

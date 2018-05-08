@@ -76,8 +76,8 @@ let type_IncompatibleType = (err, _, range) => {
   let allR =
     /* This regex query is brought to you by debuggex.com. Get your free
        real-time regex visualization today. */
-    {|This expression has type([\s\S]*?)but an expression was expected of type([\s\S]*?)(Type\b([\s\S]*?)|$)?((The type constructor[\s\S]*?)|$)?((The type variable[\s\S]* occurs inside ([\s\S])*)|$)|};
-  let extraRaw = get_match_n_maybe(3, allR, err);
+    {|This (expression has type|pattern matches values of type)([\s\S]*?)but (an expression was expected of type|a pattern was expected which matches values of type)([\s\S]*?)(Type\b([\s\S]*?)|$)?((The type constructor[\s\S]*?)|$)?((The type variable[\s\S]* occurs inside ([\s\S])*)|$)|};
+  let extraRaw = get_match_n_maybe(5, allR, err);
   let (extra, incompats) =
     switch (extraRaw) {
     | Some(a) =>
@@ -89,8 +89,8 @@ let type_IncompatibleType = (err, _, range) => {
       }
     | None => ("", [])
     };
-  let actualRaw = get_match_n(1, allR, err);
-  let expectedRaw = get_match_n(2, allR, err);
+  let actualRaw = get_match_n(2, allR, err);
+  let expectedRaw = get_match_n(4, allR, err);
   let main = {
     actual: splitEquivalentTypes(actualRaw),
     expected: splitEquivalentTypes(expectedRaw),

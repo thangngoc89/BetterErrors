@@ -58,12 +58,21 @@ let toReasonTypes2 = (~refmttypePath, one, two) =>
 
 let highlightType = (typ, other, hl, diffHl) => {
   let (typPrefixLen, typSuffixLen, otherPrefixLen, otherSuffixLen) =
-    findCommonEnds(typ, other);
+    try (findCommonEnds(typ, other)) {
+    | _ => (0, 0, 0, 0)
+    };
   let len = String.length(typ);
   let prefix = String.sub(typ, 0, typPrefixLen);
   let suffix = String.sub(typ, len - typSuffixLen, typSuffixLen);
   let mid = String.sub(typ, typPrefixLen, len - typPrefixLen - typSuffixLen);
-  hl(prefix) ++ diffHl(mid) ++ hl(suffix);
+  if (String.length(prefix)
+      + String.length(mid)
+      + String.length(suffix) === len) {
+    hl(prefix) ++ diffHl(mid) ++ hl(suffix);
+  } else {
+    /* Computed the prefix/suffix incorrectly. */
+    hl(typ);
+  };
 };
 
 /*
