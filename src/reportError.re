@@ -216,7 +216,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       ),
     ]
   | Type_IncompatibleType(incompatibleType) =>
-    let {extra, main, incompats} =
+    let {term, extra, main, incompats} =
       normalizeIncompatibleType(incompatibleType);
     /* let (diffA, diffB) = differingPortion; */
     let expected = toReasonTypes(main.expected);
@@ -227,7 +227,11 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
      * version with some comforatable white space.
      */
     let main = [
-      bold("This Type Doesn't Match What Is Expected."),
+      bold(
+        "This "
+        ++ (term === Pattern ? "Pattern " : "")
+        ++ "Type Doesn't Match What Is Expected.",
+      ),
       "",
       ...renderInequality(~isDetail=false, ~expected, ~actual),
     ];

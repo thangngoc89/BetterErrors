@@ -89,13 +89,15 @@ let type_IncompatibleType = (err, _, range) => {
       }
     | None => ("", [])
     };
+  let term =
+    get_match_n(1, allR, err) == "expression has type" ? Expression : Pattern;
   let actualRaw = get_match_n(2, allR, err);
   let expectedRaw = get_match_n(4, allR, err);
   let main = {
     actual: splitEquivalentTypes(actualRaw),
     expected: splitEquivalentTypes(expectedRaw),
   };
-  Type_IncompatibleType({main, incompats, extra});
+  Type_IncompatibleType({term, main, incompats, extra});
 };
 
 /* TODO: differing portion data structure a-la diff table */

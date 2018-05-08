@@ -1,3 +1,11 @@
+/*
+ * Useful variant for various descriptions of errors (is the problem in an
+ * expression, or in a pattern?)
+ */
+type term =
+  | Pattern
+  | Expression;
+
 /* records that are only used by their variant tag of similar name below. We
    need inline record type declarations... */
 type mismatchTypeArguments = {
@@ -128,6 +136,7 @@ type incompat = {
 };
 
 type incompatibleType = {
+  term,
   extra: string,
   /*
    * When the compiler points out incompatible parts. It's not clear if A or B
