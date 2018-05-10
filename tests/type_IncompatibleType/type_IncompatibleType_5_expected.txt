@@ -31,7 +31,7 @@
 [2m16 ┆ [0m[2m[35mlet[0m[2m[39m asd: [0m[2m[34mPettyModule[0m[2m[39m.[0m[2m[34mNested[0m[2m[39m.weAreStrings =[0m
 [2m[31m17 ┆ [0m[2m[39m  [0m[4m[1m[31m([[{nihao = 1}]]: TopNotchModule.myRecordListList)[0m
 
-[1mThis Type Doesn't Match What Is Expected.[0m
+[1mThis type doesn't match what is expected.[0m
 
   This type:
     [31m[0m[1m[31mTopNotchModule.myRecordListList[0m[31m[0m[2m
@@ -44,7 +44,7 @@
     [0m[32mlist([0m[1m[32mPettyModule.youAreAString[0m[32m)[0m
 
 
-[1mThe Contradicting Part:[0m
+[1mThe contradicting part:[0m
 
   The type:   
     [31m[0m[1m[31mTopNotchModule.myRecordList[0m[31m[0m[2m

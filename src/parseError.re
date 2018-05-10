@@ -43,12 +43,12 @@ let incompatR =
 let typeIncompatsR = Re_pcre.regexp({|\s*\s\sType|});
 
 let extractTypeIncompatsFromExtra = extra => {
-  let extraWithTwoSpaces = "  " ++ extra;
   /*
    * Need to add back the two spaces before the first Type to make sure it
    * actually gets detected in this regex for the first occurence. It was too
    * hard to make the original regex capture the two leading spaces.
    */
+  let extraWithTwoSpaces = "  " ++ extra;
   let splitted = Re_pcre.full_split(~rex=typeIncompatsR, extraWithTwoSpaces);
   let folder = ((curOther, curIncompats), next) =>
     switch (next) {
@@ -73,11 +73,21 @@ let type_IncompatibleType = (err, _, range) => {
   /* the type actual and expected might be on their own line */
   /* sometimes the error msg might equivalent types, e.g. "myType = string isn't
      compatible to bla" */
+  let escapeScopeR = {|The type constructor([\s\S]*)?would escape its scope|};
   let allR =
     /* This regex query is brought to you by debuggex.com. Get your free
        real-time regex visualization today. */
-    {|This (expression has type|pattern matches values of type)([\s\S]*?)but (an expression was expected of type|a pattern was expected which matches values of type)([\s\S]*?)(Type\b([\s\S]*?)|$)?((The type constructor[\s\S]*?)|$)?((The type variable[\s\S]* occurs inside ([\s\S])*)|$)|};
+    {|This (expression has type|pattern matches values of type)([\s\S]*?)|}
+    ++ {|but (an expression was expected of type|a pattern was expected which matches values of type)([\s\S]*?)|}
+    ++ {|(Type\b([\s\S]*?))?|}
+    ++ {|(The type constructor([\s\S])*?would escape its scope)?|}
+    ++ {|(The type variable[\s\S]* occurs inside ([\s\S])*)?$|};
   let extraRaw = get_match_n_maybe(5, allR, err);
+  let escapedScope =
+    switch (get_match_n_maybe(7, allR, err)) {
+    | None => None
+    | Some(s) => Some(String.trim(get_match_n(1, escapeScopeR, s)))
+    };
   let (extra, incompats) =
     switch (extraRaw) {
     | Some(a) =>
@@ -97,7 +107,7 @@ let type_IncompatibleType = (err, _, range) => {
     actual: splitEquivalentTypes(actualRaw),
     expected: splitEquivalentTypes(expectedRaw),
   };
-  Type_IncompatibleType({term, main, incompats, extra});
+  Type_IncompatibleType({term, main, incompats, extra, escapedScope});
 };
 
 /* TODO: differing portion data structure a-la diff table */

@@ -145,6 +145,8 @@ type incompatibleType = {
    */
   main: incompat,
   incompats: list(incompat),
+  /* Type constructor name that might escape scope. */
+  escapedScope: option(string),
 };
 
 type notAFunction = {actual: string};

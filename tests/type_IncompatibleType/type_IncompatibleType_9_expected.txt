@@ -13,7 +13,7 @@
 [2m4 ┆ [0m
 [2m5 ┆ [0m
 
-[1mThis Pattern Type Doesn't Match What Is Expected.[0m
+[1mThis pattern type doesn't match what is expected.[0m
 
   This type: [31mstring[0m[1m[31m => string[0m[31m[0m
   Expecting: [32mstring[0m[1m[32m[0m[32m[0m
