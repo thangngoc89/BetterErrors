@@ -1,5 +1,23 @@
 let indent = (prefixStr, lines) => List.map(s => prefixStr ++ s, lines);
 
+let splitOnChar = (sep, s) => {
+  let j = ref(String.length(s));
+  let r = ref([]);
+  for (i in String.length(s) - 1 downto 0) {
+    if (String.unsafe_get(s, i) == sep) {
+      r.contents = [String.sub(s, i + 1, j.contents - i - 1), ...r.contents];
+      j.contents = i;
+    };
+  };
+  let tl = r.contents;
+  [String.sub(s, 0, j.contents), ...tl];
+};
+
+let split = (sep, str) => {
+  let rex = Re_pcre.regexp(sep);
+  Re_pcre.split(~rex, str);
+};
+
 let splitLeadingWhiteSpace = s => {
   let index = {contents: 0};
   let firstNonWhite = {contents: (-1)}; /* -1 means does not exist. */
@@ -48,7 +66,7 @@ let indentStr = (prefixStr, s) =>
   if (prefixStr == "") {
     s;
   } else {
-    String.split_on_char('\n', s)
+    splitOnChar('\n', s)
     |> List.map(s => prefixStr ++ s)
     |> String.concat("\n");
   };
@@ -243,11 +261,6 @@ let getSubstringMaybe = (result, n) =>
   | Not_found => None
   };
 
-let split = (sep, str) => {
-  let rex = Re_pcre.regexp(sep);
-  Re_pcre.split(~rex, str);
-};
-
 let sub = (sep, cb, str) => {
   let rex = Re_pcre.regexp(sep);
   Re_pcre.substitute(~rex, ~subst=cb, str);
@@ -432,7 +445,7 @@ let highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
 };
 
 let highlightSource = (~dim=false, ~underline=false, ~bold=false, txt) => {
-  let splitOnQuotes = String.split_on_char('"', txt);
+  let splitOnQuotes = splitOnChar('"', txt);
   let balancedQuotes = List.length(splitOnQuotes) mod 2 === 1;
   if (balancedQuotes) {
     let chunks =
