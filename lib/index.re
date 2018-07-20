@@ -227,7 +227,7 @@ let line_stream_of_channel = channel =>
     | End_of_file => None
     }
   );
-
+/* BetterErrorsTypes.result_; */
 /* entry point, for convenience purposes for now. Theoretically the parser and
       the reporters are decoupled.
       What about errors of the form:
@@ -309,6 +309,11 @@ let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorPa
       /* might have accumulated a few more lines */
       if (reverseErrBuffer.contents !== []) {
         let bufferText = revBufferToStr(reverseErrBuffer.contents);
+        let foo =
+          parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
+          |> BetterErrorsTypes.result_to_yojson
+          |> Yojson.Safe.to_string;
+        print_endline(foo);
         parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
         |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
         |> revBufferToStr

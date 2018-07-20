@@ -4,4 +4,5 @@
 (library (
   (name Refmterr)
   (public_name refmterr.lib)
-  (libraries (re.pcre unix))))
+  (preprocess (pps (ppx_deriving_yojson)))
+  (libraries (re.pcre unix yojson ppx_deriving_yojson.runtime))))
