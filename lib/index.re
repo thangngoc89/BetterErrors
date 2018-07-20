@@ -21,19 +21,19 @@ let normalizeCompilerLineColsToRange = (~fileLines, ~lineRaw, ~col1Raw, ~col2Raw
   let (col1, col2) =
     if (isOCamlBeingBadAndPointingToALineBeyondFileLength) {
       let lastDamnReachableSpotInTheFile = String.length(List.nth(fileLines, fileLength - 1));
-      (lastDamnReachableSpotInTheFile - 1, lastDamnReachableSpotInTheFile)
+      (lastDamnReachableSpotInTheFile - 1, lastDamnReachableSpotInTheFile);
     } else {
       switch (col1Raw, col2Raw) {
       | (Some(a), Some(b)) => (int_of_string(a), int_of_string(b))
       /* some error msgs don't have column numbers; we normal them to 0 here */
       | _ => (0, 0)
-      }
+      };
     };
   let startRow =
     if (isOCamlBeingBadAndPointingToALineBeyondFileLength) {
-      fileLength - 1
+      fileLength - 1;
     } else {
-      line - 1
+      line - 1;
     };
   let currentLine = List.nth(fileLines, startRow);
   let numberOfCharsBetweenStartAndEndColumn = col2 - col1;
@@ -42,7 +42,7 @@ let normalizeCompilerLineColsToRange = (~fileLines, ~lineRaw, ~col1Raw, ~col2Raw
        spans multiple lines*/
     String.length(currentLine) - col1 + 1;
   if (numberOfCharsBetweenStartAndEndColumn <= numberOfCharsLeftToCoverOnStartingRow) {
-    ((startRow, col1), (startRow, col2))
+    ((startRow, col1), (startRow, col2));
   } else {
     let howManyCharsLeftToCoverOnSubsequentLines =
       ref(numberOfCharsBetweenStartAndEndColumn - numberOfCharsLeftToCoverOnStartingRow);
@@ -50,29 +50,28 @@ let normalizeCompilerLineColsToRange = (~fileLines, ~lineRaw, ~col1Raw, ~col2Raw
       fileLines
       |> Helpers.listDrop(startRow + 1)
       |> List.map(String.length)
-      |> Helpers.listTakeWhile(
-           (numberOfCharsOnThisLine) =>
-             if (howManyCharsLeftToCoverOnSubsequentLines^ > numberOfCharsOnThisLine) {
-               howManyCharsLeftToCoverOnSubsequentLines :=
-                 howManyCharsLeftToCoverOnSubsequentLines^ - numberOfCharsOnThisLine - 1;
-               true
-             } else {
-               false
-             }
+      |> Helpers.listTakeWhile(numberOfCharsOnThisLine =>
+           if (howManyCharsLeftToCoverOnSubsequentLines^ > numberOfCharsOnThisLine) {
+             howManyCharsLeftToCoverOnSubsequentLines :=
+               howManyCharsLeftToCoverOnSubsequentLines^ - numberOfCharsOnThisLine - 1;
+             true;
+           } else {
+             false;
+           }
          );
     let howManyMoreRowsCoveredSinceStartRow =
       1 + List.length(suddenlyFunctionalProgrammingOutOfNowhere);
     (
       (startRow, col1),
-      (startRow + howManyMoreRowsCoveredSinceStartRow, howManyCharsLeftToCoverOnSubsequentLines^)
-    )
-  }
+      (startRow + howManyMoreRowsCoveredSinceStartRow, howManyCharsLeftToCoverOnSubsequentLines^),
+    );
+  };
 };
 
 /* has the side-effect of reading the file */
-let extractFromFileMatch = (fileMatch) =>
-  Re_pcre.(
-    switch fileMatch {
+let extractFromFileMatch = fileMatch =>
+  Re.Pcre.(
+    switch (fileMatch) {
     | [Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
       let cachedContent = Helpers.fileLinesOfExn(filePath);
       /* sometimes there's only line, but no characters */
@@ -81,9 +80,9 @@ let extractFromFileMatch = (fileMatch) =>
         | (Group(_, c1), Group(_, c2)) =>
           /* bug: https://github.com/mmottl/pcre-ocaml/issues/5 */
           if (String.trim(c1) == "" || String.trim(c2) == "") {
-            (None, None)
+            (None, None);
           } else {
-            (Some(c1), Some(c2))
+            (Some(c1), Some(c2));
           }
         | _ => (None, None)
         };
@@ -94,42 +93,41 @@ let extractFromFileMatch = (fileMatch) =>
           ~fileLines=cachedContent,
           ~lineRaw=lineNum,
           ~col1Raw,
-          ~col2Raw
+          ~col2Raw,
         ),
         /* important, otherwise leaves random blank lines that defies some of
            our regex logic, maybe */
-        String.trim(body)
-      )
+        String.trim(body),
+      );
     | _ => raise(invalid_arg("Couldn't extract error"))
     }
   );
 
 /* debug helper */
 let printFullSplitResult =
-  List.iteri(
-    (i, x) => {
-      print_int(i);
-      print_endline("");
-      Re_pcre.(
-        switch x {
-        | Delim(a) => print_endline("Delim " ++ a)
-        | Group(_, a) => print_endline("Group " ++ a)
-        | Text(a) => print_endline("Text " ++ a)
-        | NoGroup => print_endline("NoGroup")
-        }
-      )
-    }
-  );
+  List.iteri((i, x) => {
+    print_int(i);
+    print_endline("");
+    Re.Pcre.(
+      switch (x) {
+      | Delim(a) => print_endline("Delim " ++ a)
+      | Group(_, a) => print_endline("Group " ++ a)
+      | Text(a) => print_endline("Text " ++ a)
+      | NoGroup => print_endline("NoGroup")
+      }
+    );
+  });
 
 let fileR =
-  Re_pcre.regexp(
-    ~flags=[Re_pcre.(`MULTILINE)],
-    {|^File "([\s\S]+?)", line (\d+)(?:, characters (\d+)-(\d+))?:$|}
+  Re.Pcre.regexp(
+    ~flags=[Re.Pcre.(`MULTILINE)],
+    {|^File "([\s\S]+?)", line (\d+)(?:, characters (\d+)-(\d+))?:$|},
   );
 
-let hasErrorOrWarningR = Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], {|^(Error|Warning \d+): |});
+let hasErrorOrWarningR =
+  Re.Pcre.regexp(~flags=[Re.Pcre.(`MULTILINE)], {|^(Error|Warning \d+): |});
 
-let hasIndentationR = Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], {|^       +|});
+let hasIndentationR = Re.Pcre.regexp(~flags=[Re.Pcre.(`MULTILINE)], {|^       +|});
 
 /* TODO: make the below work. the "Here is an example..." is followed by even more lines of hints */
 /* let hasHintRStr = {|^(Hint: Did you mean |Here is an example of a value that is not matched:)|} */
@@ -138,28 +136,28 @@ let hasHintRStr = {|^Hint: Did you mean |};
 
 let argCannotBeAppliedWithLabelRStr = {|^This argument cannot be applied with label|};
 
-let hasHintR = Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], hasHintRStr);
+let hasHintR = Re.Pcre.regexp(~flags=[Re.Pcre.(`MULTILINE)], hasHintRStr);
 
 let argCannotBeAppliedWithLabelR =
-  Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], argCannotBeAppliedWithLabelRStr);
+  Re.Pcre.regexp(~flags=[Re.Pcre.(`MULTILINE)], argCannotBeAppliedWithLabelRStr);
 
 let notVisibleInCurrentScopeStr = {|^not visible in the current scope|};
 
 let notVisibleInCurrentScopeR =
-  Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], notVisibleInCurrentScopeStr);
+  Re.Pcre.regexp(~flags=[Re.Pcre.(`MULTILINE)], notVisibleInCurrentScopeStr);
 
 let theyWillNotBeSelectedStr = {|^They will not be selected|};
 
 let theyWillNotBeSelectedR =
-  Re_pcre.regexp(~flags=[Re_pcre.(`MULTILINE)], theyWillNotBeSelectedStr);
+  Re.Pcre.regexp(~flags=[Re.Pcre.(`MULTILINE)], theyWillNotBeSelectedStr);
 
 let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
   /* we know whatever err is, it starts with "File: ..." because that's how `parse`
      is used */
   let err = String.trim(err);
   try (
-    switch (Re_pcre.full_split(~rex=fileR, err)) {
-    | [Re_pcre.Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
+    switch (Re.Pcre.full_split(~rex=fileR, err)) {
+    | [Re.Pcre.Delim(_), Group(_, filePath), Group(_, lineNum), col1, col2, Text(body)] =>
       /* important, otherwise leaves random blank lines that defies some of
          our regex logic, maybe */
       let body = String.trim(body);
@@ -174,9 +172,9 @@ let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
           | (Group(_, c1), Group(_, c2)) =>
             /* bug: https://github.com/mmottl/pcre-ocaml/issues/5 */
             if (String.trim(c1) == "" || String.trim(c2) == "") {
-              raise(Invalid_argument("HUHUHUH"))
+              raise(Invalid_argument("HUHUHUH"));
             } else {
-              (Some(c1), Some(c2))
+              (Some(c1), Some(c2));
             }
           | _ => (None, None)
           };
@@ -185,7 +183,7 @@ let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
             ~fileLines=cachedContent,
             ~lineRaw=lineNum,
             ~col1Raw,
-            ~col2Raw
+            ~col2Raw,
           );
         let warningCapture =
           switch (execMaybe({|^Warning (\d+): ([\s\S]+)|}, body)) {
@@ -199,7 +197,7 @@ let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
             cachedContent,
             range,
             parsedContent:
-              ParseError.parse(~customErrorParsers, ~errorBody, ~cachedContent, ~range)
+              ParseError.parse(~customErrorParsers, ~errorBody, ~cachedContent, ~range),
           })
         | (None, (Some(code), Some(warningBody))) =>
           let code = int_of_string(code);
@@ -209,26 +207,25 @@ let parse = (~customLogOutputProcessors, ~customErrorParsers, err) => {
             range,
             parsedContent: {
               code,
-              warningType: ParseWarning.parse(code, warningBody, filePath, cachedContent, range)
-            }
-          })
+              warningType: ParseWarning.parse(code, warningBody, filePath, cachedContent, range),
+            },
+          });
         | _ => raise(Invalid_argument(err))
-        }
-      }
+        };
+      };
     /* not an error, not a warning. False alarm? */
     | _ => Unparsable
     }
   ) {
   | _ => Unparsable
-  }
+  };
 };
 
-let line_stream_of_channel = (channel) =>
-  Stream.from(
-    (_) =>
-      try (Some(input_line(channel))) {
-      | End_of_file => None
-      }
+let line_stream_of_channel = channel =>
+  Stream.from(_ =>
+    try (Some(input_line(channel))) {
+    | End_of_file => None
+    }
   );
 
 /* entry point, for convenience purposes for now. Theoretically the parser and
@@ -236,17 +233,17 @@ let line_stream_of_channel = (channel) =>
       What about errors of the form:
 
    */
-let revBufferToStr = (revBuffer) => String.concat("\n", List.rev(revBuffer));
+let revBufferToStr = revBuffer => String.concat("\n", List.rev(revBuffer));
 
 let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorParsers) => {
   let reverseErrBuffer = {contents: []};
   let prettyPrintParsedResult = TerminalReporter.prettyPrintParsedResult(~refmttypePath);
-  let forEachLine = (line) =>
+  let forEachLine = line =>
     switch (
       reverseErrBuffer.contents,
-      Re_pcre.pmatch(~rex=fileR, line),
-      Re_pcre.pmatch(~rex=hasErrorOrWarningR, line),
-      Re_pcre.pmatch(~rex=hasIndentationR, line)
+      Re.Pcre.pmatch(~rex=fileR, line),
+      Re.Pcre.pmatch(~rex=hasErrorOrWarningR, line),
+      Re.Pcre.pmatch(~rex=hasIndentationR, line),
     ) {
     | ([], false, false, false) =>
       /* no error, just stream on the line */
@@ -267,7 +264,7 @@ let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorPa
       |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
       |> revBufferToStr
       |> print_endline;
-      reverseErrBuffer.contents = [line]
+      reverseErrBuffer.contents = [line];
     /* buffer not empty, and we're seeing an error/indentation line. This is
        the continuation of a currently streaming error/warning */
     | (_, _, _, true)
@@ -284,12 +281,12 @@ let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorPa
                       customErrorParsers:(string * string list) list -> unit
              This argument cannot be applied with label ~raiseExceptionDuringParse
          */
-      if (Re_pcre.pmatch(~rex=hasHintR, line)
-          || Re_pcre.pmatch(~rex=argCannotBeAppliedWithLabelR, line)
-          || Re_pcre.pmatch(~rex=notVisibleInCurrentScopeR, line)
-          || Re_pcre.pmatch(~rex=theyWillNotBeSelectedR, line)) {
+      if (Re.Pcre.pmatch(~rex=hasHintR, line)
+          || Re.Pcre.pmatch(~rex=argCannotBeAppliedWithLabelR, line)
+          || Re.Pcre.pmatch(~rex=notVisibleInCurrentScopeR, line)
+          || Re.Pcre.pmatch(~rex=theyWillNotBeSelectedR, line)) {
         reverseErrBuffer.contents =
-          [line, ...reverseErrBuffer.contents]
+          [line, ...reverseErrBuffer.contents];
           /* let bufferText = revBufferToStr(reverseErrBuffer.contents);
            * parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
            * |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
@@ -303,23 +300,25 @@ let parseFromStdin = (~refmttypePath, ~customLogOutputProcessors, ~customErrorPa
         |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
         |> revBufferToStr
         |> print_endline;
-        reverseErrBuffer.contents = [line]
+        reverseErrBuffer.contents = [line];
       }
     };
-  try {
-    line_stream_of_channel(stdin) |> Stream.iter(forEachLine);
-    /* might have accumulated a few more lines */
-    if (reverseErrBuffer.contents !== []) {
-      let bufferText = revBufferToStr(reverseErrBuffer.contents);
-      parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
-      |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
-      |> revBufferToStr
-      |> print_endline
-    };
-    close_in(stdin)
-  } {
+  try (
+    {
+      line_stream_of_channel(stdin) |> Stream.iter(forEachLine);
+      /* might have accumulated a few more lines */
+      if (reverseErrBuffer.contents !== []) {
+        let bufferText = revBufferToStr(reverseErrBuffer.contents);
+        parse(~customLogOutputProcessors, ~customErrorParsers, bufferText)
+        |> prettyPrintParsedResult(~originalRevLines=reverseErrBuffer.contents)
+        |> revBufferToStr
+        |> print_endline;
+      };
+      close_in(stdin);
+    }
+  ) {
   | e =>
     close_in(stdin);
-    raise(e)
-  }
+    raise(e);
+  };
 };

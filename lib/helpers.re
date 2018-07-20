@@ -14,8 +14,8 @@ let splitOnChar = (sep, s) => {
 };
 
 let split = (sep, str) => {
-  let rex = Re_pcre.regexp(sep);
-  Re_pcre.split(~rex, str);
+  let rex = Re.Pcre.regexp(sep);
+  Re.Pcre.split(~rex, str);
 };
 
 let splitLeadingWhiteSpace = s => {
@@ -41,34 +41,30 @@ let splitLeadingWhiteSpace = s => {
   };
 };
 
-let doubleUnder = Re_pcre.regexp({|__|});
+let doubleUnder = Re.Pcre.regexp({|__|});
 
 let subDot = s => ".";
 
-let moreThanOneSpace = Re_pcre.regexp({|\s[\s]*|});
+let moreThanOneSpace = Re.Pcre.regexp({|\s[\s]*|});
 
 let subOneSpace = s => " ";
 
 /*
  * Collapses multiple spaces into a single space.
  */
-let collapseSpacing = s =>
-  Re_pcre.substitute(~rex=moreThanOneSpace, ~subst=subOneSpace, s);
+let collapseSpacing = s => Re.Pcre.substitute(~rex=moreThanOneSpace, ~subst=subOneSpace, s);
 
 /*
  * Replaces the common module alias names with their conceptual counterparts
  * (double underscores become dot).
  */
-let removeModuleAlias = s =>
-  Re_pcre.substitute(~rex=doubleUnder, ~subst=subDot, s);
+let removeModuleAlias = s => Re.Pcre.substitute(~rex=doubleUnder, ~subst=subDot, s);
 
 let indentStr = (prefixStr, s) =>
   if (prefixStr == "") {
     s;
   } else {
-    splitOnChar('\n', s)
-    |> List.map(s => prefixStr ++ s)
-    |> String.concat("\n");
+    splitOnChar('\n', s) |> List.map(s => prefixStr ++ s) |> String.concat("\n");
   };
 
 /* Batteries library substitutes */
@@ -177,19 +173,9 @@ let stringNsplit = (str, ~by) =>
       if (lengthStr < lengthBy) {
         [curr ++ str, ...accum];
       } else if (String.sub(str, 0, lengthBy) == by) {
-        split'(
-          String.sub(str, lengthBy, lengthStr - lengthBy),
-          ~by,
-          [curr, ...accum],
-          "",
-        );
+        split'(String.sub(str, lengthBy, lengthStr - lengthBy), ~by, [curr, ...accum], "");
       } else {
-        split'(
-          String.sub(str, 1, lengthStr - 1),
-          ~by,
-          accum,
-          curr ++ String.sub(str, 0, 1),
-        );
+        split'(String.sub(str, 1, lengthStr - 1), ~by, accum, curr ++ String.sub(str, 0, 1));
       };
     };
     split'(str, ~by, [], "") |> List.rev;
@@ -228,52 +214,49 @@ let fileLinesOfExn = filePath => linesOfChannelExn(open_in(filePath));
 
 /* ============ */
 let get_match_n = (n, pat, str) => {
-  let rex = Re_pcre.regexp(pat);
-  Re_pcre.get_substring(Re_pcre.exec(~rex, str), n);
+  let rex = Re.Pcre.regexp(pat);
+  Re.Pcre.get_substring(Re.Pcre.exec(~rex, str), n);
 };
 
 /* get the first (presumably only) match in a string */
 let get_match = get_match_n(1);
 
 let get_match_maybe = (pat, str) => {
-  let rex = Re_pcre.regexp(pat);
-  try (Some(Re_pcre.get_substring(Re_pcre.exec(~rex, str), 1))) {
+  let rex = Re.Pcre.regexp(pat);
+  try (Some(Re.Pcre.get_substring(Re.Pcre.exec(~rex, str), 1))) {
   | Not_found => None
   };
 };
 
 let get_match_n_maybe = (n, pat, str) => {
-  let rex = Re_pcre.regexp(pat);
-  try (Some(Re_pcre.get_substring(Re_pcre.exec(~rex, str), n))) {
+  let rex = Re.Pcre.regexp(pat);
+  try (Some(Re.Pcre.get_substring(Re.Pcre.exec(~rex, str), n))) {
   | _ => None
   };
 };
 
 let execMaybe = (pat, str) => {
-  let rex = Re_pcre.regexp(pat);
-  try (Some(Re_pcre.exec(~rex, str))) {
+  let rex = Re.Pcre.regexp(pat);
+  try (Some(Re.Pcre.exec(~rex, str))) {
   | Not_found => None
   };
 };
 
 let getSubstringMaybe = (result, n) =>
-  try (Some(Re_pcre.get_substring(result, n))) {
+  try (Some(Re.Pcre.get_substring(result, n))) {
   | Not_found => None
   };
 
 let sub = (sep, cb, str) => {
-  let rex = Re_pcre.regexp(sep);
-  Re_pcre.substitute(~rex, ~subst=cb, str);
+  let rex = Re.Pcre.regexp(sep);
+  Re.Pcre.substitute(~rex, ~subst=cb, str);
 };
 
-let rec splitInto = (~chunckSize, l: list('a)) : list(list('a)) =>
+let rec splitInto = (~chunckSize, l: list('a)): list(list('a)) =>
   if (List.length(l) <= chunckSize || chunckSize == 0) {
     [l];
   } else {
-    [
-      listTake(chunckSize, l),
-      ...splitInto(~chunckSize, listDrop(chunckSize, l)),
-    ];
+    [listTake(chunckSize, l), ...splitInto(~chunckSize, listDrop(chunckSize, l))];
   };
 
 let resetANSI = "\027[0m";
@@ -387,13 +370,7 @@ let highlight =
       str,
     ) =>
   stringSlice(~last=first, str)
-  ++ color(
-       ~underline,
-       ~dim,
-       ~invert,
-       ~bold,
-       stringSlice(~first, ~last, str),
-     )
+  ++ color(~underline, ~dim, ~invert, ~bold, stringSlice(~first, ~last, str))
   ++ stringSlice(~first=last, str);
 
 /*
@@ -410,29 +387,25 @@ let tokens = [
   /* Named arguments */
   ({|~[a-z][a-zA-Z0-9_']*\b|}, yellow),
   ({|\blet\b|\bmodule\b|\blet\b|\btype\b|\bopen\b|}, purple),
-  (
-    {|\bif\b|\belse\b|\bfor\b|\bfor\b|\bwhile\b|\bswitch\b|\bint\b|\bstring\b|\blist\b|},
-    yellow,
-  ),
+  ({|\bif\b|\belse\b|\bfor\b|\bfor\b|\bwhile\b|\bswitch\b|\bint\b|\bstring\b|\blist\b|}, yellow),
   ({|\b[0-9]+\b|}, blue),
   ({|\b[A-Z][A-Za-z0-9_]*\b|}, blue),
   ({|\s\+\+\s|\s\+\s|\s\-\s|\s=>\s|\s==\s|}, red),
 ];
 
-let tokenRegex =
-  String.concat("|", List.map(((rStr, _)) => "(" ++ rStr ++ ")", tokens));
+let tokenRegex = String.concat("|", List.map(((rStr, _)) => "(" ++ rStr ++ ")", tokens));
 
 /*
  * This is so much more complicated because highlighting doesn't support
  * nesting right now.
  */
 let highlightTokens = (~dim, ~bold, ~underline, txt, tokens) => {
-  let rex = Re_pcre.regexp(tokenRegex);
-  let splitted = Re_pcre.full_split(~rex, txt);
+  let rex = Re.Pcre.regexp(tokenRegex);
+  let splitted = Re.Pcre.full_split(~rex, txt);
   let strings =
     List.map(
       fun
-      | Re_pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
+      | Re.Pcre.Text(s) => highlight(~dim, ~bold, ~underline, s)
       | Delim(s) => "" /* Let the Group do the highlighting */
       | Group(i, s) => {
           let (r, color) = List.nth(tokens, i - 1);
@@ -505,9 +478,7 @@ let findCommonEnds = (aStr, bStr) => {
   let bSuffixLenBoundary = {contents: 0};
   let continuePrefix = {contents: true};
   let continueSuffix = {contents: true};
-  while (continuePrefix.contents
-         && aPrefixLen.contents <= aLen
-         && bPrefixLen.contents <= bLen) {
+  while (continuePrefix.contents && aPrefixLen.contents <= aLen && bPrefixLen.contents <= bLen) {
     let nextNonwhiteA = nextNonWhiteChar(aStr, 1, aPrefixLen.contents - 1);
     let nextNonwhiteB = nextNonWhiteChar(bStr, 1, bPrefixLen.contents - 1);
     switch (nextNonwhiteA, nextNonwhiteB) {
@@ -554,10 +525,8 @@ let findCommonEnds = (aStr, bStr) => {
          - aPrefixLenBoundary.contents
          && bSuffixLen.contents < bLen
          - bPrefixLenBoundary.contents) {
-    let nextNonwhiteA =
-      nextNonWhiteChar(aStr, -1, aLen - aSuffixLen.contents);
-    let nextNonwhiteB =
-      nextNonWhiteChar(bStr, -1, bLen - bSuffixLen.contents);
+    let nextNonwhiteA = nextNonWhiteChar(aStr, -1, aLen - aSuffixLen.contents);
+    let nextNonwhiteB = nextNonWhiteChar(bStr, -1, bLen - bSuffixLen.contents);
     switch (nextNonwhiteA, nextNonwhiteB) {
     /* I think these first three cases would have been caught by the prefix
      * finding portion */

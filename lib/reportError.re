@@ -2,22 +2,19 @@ open BetterErrorsTypes;
 
 open Helpers;
 
-let suggestifyList = suggestions =>
-  suggestions |> List.map(sug => yellow("- " ++ sug));
+let suggestifyList = suggestions => suggestions |> List.map(sug => yellow("- " ++ sug));
 
-let refmttypeNewlineR = Re_pcre.regexp({|\\n|});
+let refmttypeNewlineR = Re.Pcre.regexp({|\\n|});
 
 /*
  * Remove GADT cruft etc.
  */
-let gadtR = Re_pcre.regexp({|\$[a-zA-Z0-9']*|});
+let gadtR = Re.Pcre.regexp({|\$[a-zA-Z0-9']*|});
 
 let replaceDollar = s =>
-  s.[0] === '$' ?
-    "thereExistsAType_" ++ String.sub(s, 1, String.length(s) - 1) : s;
+  s.[0] === '$' ? "thereExistsAType_" ++ String.sub(s, 1, String.length(s) - 1) : s;
 
-let normalizeType = s =>
-  Re_pcre.substitute(~rex=gadtR, ~subst=replaceDollar, s);
+let normalizeType = s => Re.Pcre.substitute(~rex=gadtR, ~subst=replaceDollar, s);
 
 let toReasonTypes = (~refmttypePath, types) =>
   switch (refmttypePath) {
@@ -30,11 +27,7 @@ let toReasonTypes = (~refmttypePath, types) =>
     try (
       while (true) {
         result.contents = [
-          Re_pcre.substitute(
-            ~rex=refmttypeNewlineR,
-            ~subst=(_) => "\n",
-            input_line(input),
-          ),
+          Re.Pcre.substitute(~rex=refmttypeNewlineR, ~subst=_ => "\n", input_line(input)),
           ...result.contents,
         ];
       }
@@ -65,9 +58,7 @@ let highlightType = (typ, other, hl, diffHl) => {
   let prefix = String.sub(typ, 0, typPrefixLen);
   let suffix = String.sub(typ, len - typSuffixLen, typSuffixLen);
   let mid = String.sub(typ, typPrefixLen, len - typPrefixLen - typSuffixLen);
-  if (String.length(prefix)
-      + String.length(mid)
-      + String.length(suffix) === len) {
+  if (String.length(prefix) + String.length(mid) + String.length(suffix) === len) {
     hl(prefix) ++ diffHl(mid) ++ hl(suffix);
   } else {
     /* Computed the prefix/suffix incorrectly. */
@@ -88,17 +79,11 @@ let rec renderTypeEquality = (~lines=[], ~types, ~others, hl, diffHl) =>
   switch (types, others) {
   | ([hd, ...tl], [opHd, ...opTl]) =>
     let indent = List.length(lines) > 0 ? "" : "";
-    let lines = [
-      indentStr(indent, highlightType(hd, opHd, hl, diffHl)),
-      ...lines,
-    ];
+    let lines = [indentStr(indent, highlightType(hd, opHd, hl, diffHl)), ...lines];
     renderTypeEquality(~lines, ~types=tl, ~others=opTl, hl, diffHl);
   | ([hd, ...tl], []) =>
     let indent = List.length(lines) > 0 ? "" : "";
-    let lines = [
-      indentStr(indent, highlightType(hd, "", hl, diffHl)),
-      ...lines,
-    ];
+    let lines = [indentStr(indent, highlightType(hd, "", hl, diffHl)), ...lines];
     renderTypeEquality(~lines, ~types=tl, ~others=[], hl, diffHl);
   | ([], _) => String.concat(dim("\nEquals\n"), List.rev(lines))
   };
@@ -113,10 +98,8 @@ let renderInequality = (~isDetail, ~actual, ~expected) => {
   let diffGood = highlight(~color=green, ~bold=true, ~dim=false);
   let bad = highlight(~color=red, ~bold=false, ~dim=false);
   let good = highlight(~color=green, ~bold=false, ~dim=false);
-  let actualStr =
-    renderTypeEquality(~types=actual, ~others=expected, bad, diffBad);
-  let expectedStr =
-    renderTypeEquality(~types=expected, ~others=actual, good, diffGood);
+  let actualStr = renderTypeEquality(~types=actual, ~others=expected, bad, diffBad);
+  let expectedStr = renderTypeEquality(~types=expected, ~others=actual, good, diffGood);
   let indent = "  ";
   let thisType = isDetail ? "The type:   " : "This type:";
   let expecting = isDetail ? "Contradicts:" : "Expecting:";
@@ -143,7 +126,7 @@ let renderInequality = (~isDetail, ~actual, ~expected) => {
   String.concat("\n", ret);
 };
 
-let doubleUnder = Re_pcre.regexp({|__|});
+let doubleUnder = Re.Pcre.regexp({|__|});
 
 let subDot = s => ".";
 
@@ -158,11 +141,7 @@ let normalizeEquivalencies = strings =>
   | [hd] => [hd]
   | [hd, ...tl] =>
     let hdNoSpace = collapseSpacing(hd);
-    let rest =
-      List.filter(
-        s => collapseSpacing(removeModuleAlias(s)) != hdNoSpace,
-        tl,
-      );
+    let rest = List.filter(s => collapseSpacing(removeModuleAlias(s)) != hdNoSpace, tl);
     [hd, ...rest];
   };
 
@@ -238,7 +217,7 @@ let reportEscape = originalType => {
  * We try to fold AA/BB into A/B just by highlighting.
  * If not, we show AA/BB.
  */
-let report = (~refmttypePath, parsedContent) : list(string) => {
+let report = (~refmttypePath, parsedContent): list(string) => {
   let toReasonTypes = toReasonTypes(~refmttypePath);
   let toReasonTypes1 = toReasonTypes1(~refmttypePath);
   let toReasonTypes2 = toReasonTypes2(~refmttypePath);
@@ -268,15 +247,10 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
      * version with some comforatable white space.
      */
     let termStr = term === Pattern ? "This pattern" : "This";
-    let typeInequality =
-      renderInequality(~isDetail=false, ~expected, ~actual);
+    let typeInequality = renderInequality(~isDetail=false, ~expected, ~actual);
     let main =
       switch (escapedScope) {
-      | None => [
-          bold(termStr ++ " type doesn't match what is expected."),
-          "",
-          typeInequality,
-        ]
+      | None => [bold(termStr ++ " type doesn't match what is expected."), "", typeInequality]
       | Some(t) => [
           "",
           bold(termStr ++ " allows type ")
@@ -306,10 +280,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
         [
           incompatLines,
           "",
-          bold(
-            "The contradicting part"
-            ++ (List.length(incompats) > 1 ? "s:" : ":"),
-          ),
+          bold("The contradicting part" ++ (List.length(incompats) > 1 ? "s:" : ":")),
           "",
           mainStr,
         ];
@@ -341,19 +312,10 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
           red(~bold=true, "~" ++ str ++ "?"),
         )
       | HasLabel(str) =>
-        sp(
-          "%s %s",
-          bold("But its first argument is named"),
-          red(~bold=true, "~" ++ str),
-        )
+        sp("%s %s", bold("But its first argument is named"), red(~bold=true, "~" ++ str))
       | HasNoLabel =>
-        sp(
-          "%s %s",
-          bold("But its first argument"),
-          red(~bold=true, "is not named"),
-        )
-      | Unknown =>
-        bold("There appears to be something wrong with the named arguments")
+        sp("%s %s", bold("But its first argument"), red(~bold=true, "is not named"))
+      | Unknown => bold("There appears to be something wrong with the named arguments")
       };
     [
       labelIssueStr,
@@ -375,16 +337,10 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       | None => "This is a syntax error."
       },
     ]
-  | File_IllegalCharacter({character}) => [
-      sp("The character `%s` is illegal.", character),
-    ]
+  | File_IllegalCharacter({character}) => [sp("The character `%s` is illegal.", character)]
   | Type_UnboundTypeConstructor({namespacedConstructor, suggestion}) =>
     let namespacedConstructor = toReasonTypes1(namespacedConstructor);
-    let main =
-      sp(
-        "The type %s can't be found.",
-        red(~bold=true, namespacedConstructor),
-      );
+    let main = sp("The type %s can't be found.", red(~bold=true, namespacedConstructor));
     switch (suggestion) {
     | None => [main]
     | Some(h) => [sp("Hint: did you mean %s?", yellow(h)), "", main]
@@ -392,10 +348,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
   | Type_ArgumentCannotBeAppliedWithLabel({functionType, attemptedLabel}) =>
     let formattedFunctionType = toReasonTypes1(functionType);
     [
-      sp(
-        "This function doesn't accept an argument named ~%s.",
-        attemptedLabel,
-      ),
+      sp("This function doesn't accept an argument named ~%s.", attemptedLabel),
       "",
       sp("The function has type %s", formattedFunctionType),
     ];
@@ -425,12 +378,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     | Some(hints) =>
       List.concat([
         suggestifyList(hints),
-        [
-          sp(
-            "%s can't be found. Did you mean one of these?",
-            red(~bold=true, unboundValue),
-          ),
-        ],
+        [sp("%s can't be found. Did you mean one of these?", red(~bold=true, unboundValue))],
       ])
     }
   | Type_UnboundRecordField({recordField, suggestion}) =>
@@ -438,10 +386,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     let main =
       switch (suggestion) {
       | None =>
-        sp(
-          "Record field %s can't be found in any record type.",
-          red(~bold=true, recordField),
-        )
+        sp("Record field %s can't be found in any record type.", red(~bold=true, recordField))
       | Some(hint) =>
         sp(
           "Record field %s can't be found in any record type. Did you mean %s?",
@@ -455,12 +400,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       "",
       main,
     ];
-  | Type_RecordFieldNotBelongPattern({
-      term,
-      recordType,
-      recordField,
-      suggestion,
-    }) =>
+  | Type_RecordFieldNotBelongPattern({term, recordType, recordField, suggestion}) =>
     let recordType = toReasonTypes1(recordType);
     let termStr = term === Expression ? "expression" : "pattern";
     let main = [
@@ -474,16 +414,8 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     ];
     let main =
       hasNewline(recordType) ?
-        [
-          bold(recordType),
-          "",
-          bold("The record " ++ termStr ++ " has type:"),
-          ...main,
-        ] :
-        [
-          bold("The record " ++ termStr ++ " has type: " ++ recordType),
-          ...main,
-        ];
+        [bold(recordType), "", bold("The record " ++ termStr ++ " has type:"), ...main] :
+        [bold("The record " ++ termStr ++ " has type: " ++ recordType), ...main];
     switch (suggestion) {
     | None => main
     | Some(hint) => [sp("Did you mean %s?", yellow(hint)), "", ...main]
@@ -497,24 +429,16 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
       ++ bold(recordField)
       ++ " then check ",
       "",
-      sp(
-        "You forgot to include the record field named %s.",
-        red(~bold=true, recordField),
-      ),
+      sp("You forgot to include the record field named %s.", red(~bold=true, recordField)),
     ]
   | Type_UnboundModule({unboundModule, suggestion}) =>
     let unboundModule = toReasonTypes1(unboundModule);
     let main =
-      sp(
-        "Module %s not found in included libraries.\n",
-        red(~bold=true, unboundModule),
-      );
+      sp("Module %s not found in included libraries.\n", red(~bold=true, unboundModule));
     switch (suggestion) {
     | Some(s) => [sp("Hint: did you mean %s?", yellow(s)), main]
     | None => [
-        sp(
-          " - ocamlbuild: make sure you have `-pkgs libraryName` in your build command.",
-        ),
+        sp(" - ocamlbuild: make sure you have `-pkgs libraryName` in your build command."),
         " - ocamlfind: make sure you have `-package libraryName -linkpkg` in your build command.",
         sp(
           " - For jbuilder: make sure you include the library that contains %s in your jbuild file's (libraries ...) section.",
@@ -565,10 +489,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
             red(~bold=true, named),
           ),
           "",
-          sp(
-            "  The following signature requires that %s be defined:",
-            bold(named),
-          ),
+          sp("  The following signature requires that %s be defined:", bold(named)),
           sp("  %s%s", cyan(declaredAtFile), dim(":" ++ declaredAtLine)),
           "",
         ],
@@ -611,9 +532,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
             bold(
               "This module contains a type definition with the wrong number of type parameters ",
             ) :
-            bold(
-              "This module contains a type definition that contradicts its signature",
-            ),
+            bold("This module contains a type definition that contradicts its signature"),
           "",
           sp("  %s %s%s", "At", cyan(goodFile), dim(":" ++ goodLn)),
           "  the signature required that the type be defined as:",
@@ -632,12 +551,7 @@ let report = (~refmttypePath, parsedContent) : list(string) => {
     let missingString = List.map(missingMsg, missing);
     let badValueString = List.map(badValueMsg, values);
     let badTypeString = List.map(badTypeMsg, types);
-    List.concat([
-      [finalMessage],
-      missingString,
-      badValueString,
-      badTypeString,
-    ]);
+    List.concat([[finalMessage], missingString, badValueString, badTypeString]);
   | _ => ["Error beautifier not implemented for this."]
   };
 };

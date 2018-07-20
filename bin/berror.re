@@ -36,16 +36,16 @@ let () =
 
 1;
 
-let longStorePath = Re_pcre.regexp({|\.esy\/\d[_]+\/|});
+let longStorePath = Re.Pcre.regexp({|\.esy\/\d[_]+\/|});
 
 let prettifyGlobalBuildStores = logLine =>
-  Re_pcre.substitute(
+  Re.Pcre.substitute(
     ~rex=longStorePath,
     ~subst=s => ".esy/" ++ String.make(1, s.[5]) ++ "/",
     logLine,
   );
 
-RefmterrLib.Index.parseFromStdin(
+Refmterr.Index.parseFromStdin(
   ~refmttypePath=refmttypePath^,
   ~customLogOutputProcessors=[prettifyGlobalBuildStores],
   ~customErrorParsers=[],
