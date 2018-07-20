@@ -2,8 +2,9 @@ build:
 	# Creating ocamlBetterErrors.opam so that jbuilder builds.
 	jbuilder build -j 8
 
-install: build
-	esy-installer
+install: build 
+	esy-installer refmterr
+	esy-installer refmterr-lib
 
 test:
 	jbuilder runtest
